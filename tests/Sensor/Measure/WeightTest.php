@@ -26,6 +26,7 @@ class WeightTest extends TestCase
 
         $this->assertInstanceOf(Set::class, $set);
         $this->assertSame('[0;1]', (string) $set);
+        $this->assertSame($set, Weight::definitionSet());
     }
 
     /**
