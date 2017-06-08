@@ -14,6 +14,7 @@ use Innmind\Math\{
     Algebra\Integer,
     Statistics\Mean
 };
+use Innmind\TimeContinuum\PointInTimeInterface;
 use Innmind\Immutable\{
     Stream,
     MapInterface
@@ -22,11 +23,13 @@ use Innmind\Immutable\{
 final class State
 {
     private $identity;
+    private $time;
     private $measures;
     private $value;
 
     public function __construct(
         Identity $identity,
+        PointInTimeInterface $time,
         MapInterface $measures
     ) {
         if (
@@ -50,6 +53,7 @@ final class State
         }
 
         $this->identity = $identity;
+        $this->time = $time;
         $this->measures = $measures;
         $this->value = new Mean(
             ...$measures->reduce(
@@ -66,6 +70,11 @@ final class State
     public function identity(): Identity
     {
         return $this->identity;
+    }
+
+    public function time(): PointInTimeInterface
+    {
+        return $this->time;
     }
 
     public function factor(string $name): Measure

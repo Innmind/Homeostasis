@@ -20,6 +20,7 @@ class StateTest extends TestCase
     {
         $state = new State(
             $identity = $this->createMock(Identity::class),
+            $time = $this->createMock(PointInTimeInterface::class),
             (new Map('string', Measure::class))
                 ->put(
                     'cpu',
@@ -40,6 +41,7 @@ class StateTest extends TestCase
         );
 
         $this->assertSame($identity, $state->identity());
+        $this->assertSame($time, $state->time());
         $this->assertSame($cpu, $state->factor('cpu'));
         $this->assertSame($error, $state->factor('error'));
         $this->assertInstanceOf(Number::class, $state->value());
@@ -57,6 +59,7 @@ class StateTest extends TestCase
     {
         new State(
             $this->createMock(Identity::class),
+            $this->createMock(PointInTimeInterface::class),
             new Map('int', Measure::class)
         );
     }
@@ -68,6 +71,7 @@ class StateTest extends TestCase
     {
         new State(
             $this->createMock(Identity::class),
+            $this->createMock(PointInTimeInterface::class),
             new Map('string', 'int')
         );
     }
@@ -79,6 +83,7 @@ class StateTest extends TestCase
     {
         new State(
             $this->createMock(Identity::class),
+            $this->createMock(PointInTimeInterface::class),
             (new Map('string', Measure::class))
                 ->put(
                     'cpu',
