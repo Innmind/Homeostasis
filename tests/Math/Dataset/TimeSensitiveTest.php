@@ -96,10 +96,10 @@ class TimeSensitiveTest extends TestCase
         $this->assertInstanceOf(Dataset::class, $dataset);
         $this->assertSame(
             [
-                [0, 0.6],
-                [100, 0.8],
-                [200, 0.4],
-                [300, 0.2],
+                [0.0, 0.6],
+                [1.0, 0.8],
+                [2.0, 0.4],
+                [3.0, 0.2],
             ],
             $dataset->toArray()
         );

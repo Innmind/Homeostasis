@@ -40,7 +40,31 @@ final class TimeSensitive
                         new Pair($key, $state)
                     );
                 }
-            )
+            );
+        $previous = $points->first()->key();
+        $lowestGap = $points
+            ->drop(1)
+            ->reduce(
+                INF,
+                static function(float $lowest, Pair $point) use (&$previous): float {
+                    $delta = $point->key() - $previous;
+                    $previous = $point->key();
+
+                    if ($delta < $lowest) {
+                        $lowest = $delta;
+                    }
+
+                    return $lowest;
+                }
+            );
+
+        $points = $points
+            ->map(static function(Pair $point) use ($lowestGap): Pair {
+                return new Pair(
+                    $point->key() / $lowestGap,
+                    $point->value()
+                );
+            })
             ->reduce(
                 [],
                 static function(array $points, Pair $point): array {
