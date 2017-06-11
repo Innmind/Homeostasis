@@ -34,18 +34,14 @@ class AugmentTest extends TestCase
                 [5, 12.5],
                 [6, 12.5],
                 [7, 8],
-                [8, 4.5],
-                [9, 2],
-                [10, 1],
-                [11, 0],
             ])
         );
 
         $this->assertInstanceOf(Dataset::class, $augmented);
         $this->assertNotSame($dataset, $augmented);
         $this->assertSame($data, $dataset->toArray());
-        $data[] = [12, 7.159090909099177];
-        $data[] = [13, 22.72552447554358];
+        $data[] = [8, 58.00000159408228];
+        $data[] = [9, 401.99997883156175];
         $this->assertSame($data, $augmented->toArray());
     }
 }

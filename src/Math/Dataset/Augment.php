@@ -3,11 +3,13 @@ declare(strict_types = 1);
 
 namespace Innmind\Homeostasis\Math\Dataset;
 
-use Innmind\Homeostasis\Exception\AugmentAtLeastByOne;
+use Innmind\Homeostasis\{
+    Math\PolynomialRegression\BestFit,
+    Exception\AugmentAtLeastByOne
+};
 use Innmind\Math\{
     Algebra\Integer,
-    Regression\Dataset,
-    Regression\PolynomialRegression
+    Regression\Dataset
 };
 
 final class Augment
@@ -25,7 +27,10 @@ final class Augment
 
     public function __invoke(Dataset $dataset): Dataset
     {
-        $polynom = new PolynomialRegression($dataset, new Integer(4));
+        $polynom = (new BestFit($dataset))(
+            new Integer(1),
+            $dataset->abscissas()->dimension()->decrement()
+        );
 
         $abscissas = $dataset->abscissas();
         $dimension = $abscissas->dimension()->value();
