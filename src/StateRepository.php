@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Homeostasis;
 
+use Innmind\Homeostasis\State\Identity;
 use Innmind\Immutable\SetInterface;
 
 interface StateRepository

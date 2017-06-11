@@ -82,6 +82,14 @@ final class State
         return $this->measures->get($name);
     }
 
+    /**
+     * @return MapInterface<string, Measure>
+     */
+    public function measures(): MapInterface
+    {
+        return $this->measures;
+    }
+
     public function value(): Number
     {
         return $this->value;
