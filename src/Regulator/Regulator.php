@@ -27,6 +27,7 @@ final class Regulator implements RegulatorInterface
     private $repository;
     private $clock;
     private $strategyDeterminator;
+    private $actuator;
 
     public function __construct(
         SetInterface $factors,
