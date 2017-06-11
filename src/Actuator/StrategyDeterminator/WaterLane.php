@@ -49,8 +49,8 @@ final class WaterLane implements StrategyDeterminator
         $trend = new LinearRegression($dataset);
 
         if (
-           $this->notInBounds($trend->intercept()) ||
-           $this->crossLane($dataset, $trend)
+            $this->notInBounds($trend->intercept()) ||
+            $this->crossLane($dataset, $trend)
         ) {
             throw new StrategyNotDeterminable;
         }
