@@ -20,7 +20,8 @@
         "innmind/time-continuum": "^1.0",
         "innmind/filesystem": "^2.2",
         "innmind/server-status": "^1.0",
-        "innmind/log-reader": "^1.0"
+        "innmind/log-reader": "^1.0",
+        "symfony/filesystem": "^3.3"
     },
     "autoload": {
         "psr-4": {
