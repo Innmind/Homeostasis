@@ -9,7 +9,6 @@ use Innmind\Homeostasis\{
     Strategy,
     Math\Dataset\Augment,
     State,
-    State\Identity,
     Sensor\Measure,
     Sensor\Measure\Weight
 };
@@ -23,7 +22,7 @@ use Innmind\TimeContinuum\{
     PointInTimeInterface
 };
 use Innmind\Immutable\{
-    Set,
+    Stream,
     Map
 };
 use PHPUnit\Framework\TestCase;
@@ -51,10 +50,9 @@ class WaterLaneTest extends TestCase
     {
         $clock = new Earth;
         $strategy = ($this->lane)(
-            (new Set(State::class))
+            (new Stream(State::class))
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.200+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -69,7 +67,6 @@ class WaterLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.300+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -84,7 +81,6 @@ class WaterLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.400+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -99,7 +95,6 @@ class WaterLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.500+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -121,10 +116,9 @@ class WaterLaneTest extends TestCase
     {
         $clock = new Earth;
         $strategy = ($this->lane)(
-            (new Set(State::class))
+            (new Stream(State::class))
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.200+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -139,7 +133,6 @@ class WaterLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.300+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -154,7 +147,6 @@ class WaterLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.400+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -169,7 +161,6 @@ class WaterLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.500+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -194,10 +185,9 @@ class WaterLaneTest extends TestCase
     {
         $clock = new Earth;
         ($this->lane)(
-            (new Set(State::class))
+            (new Stream(State::class))
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.200+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -212,7 +202,6 @@ class WaterLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.300+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -227,7 +216,6 @@ class WaterLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.400+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -242,7 +230,6 @@ class WaterLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.500+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -265,10 +252,9 @@ class WaterLaneTest extends TestCase
     {
         $clock = new Earth;
         ($this->lane)(
-            (new Set(State::class))
+            (new Stream(State::class))
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.200+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -283,7 +269,6 @@ class WaterLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.300+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -298,7 +283,6 @@ class WaterLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.400+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -313,7 +297,6 @@ class WaterLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.500+0000'),
                         (new Map('string', Measure::class))
                             ->put(

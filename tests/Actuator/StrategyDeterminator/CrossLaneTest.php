@@ -8,7 +8,6 @@ use Innmind\Homeostasis\{
     Actuator\StrategyDeterminator,
     Math\Dataset\Augment,
     State,
-    State\Identity,
     Sensor\Measure,
     Sensor\Measure\Weight,
     Strategy
@@ -23,7 +22,7 @@ use Innmind\TimeContinuum\{
 };
 use Innmind\Immutable\{
     Map,
-    Set
+    Stream
 };
 use PHPUnit\Framework\TestCase;
 
@@ -43,10 +42,9 @@ class CrossLaneTest extends TestCase
         $clock = new Earth;
 
         $strategy = $determinate(
-            (new Set(State::class))
+            (new Stream(State::class))
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.200+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -61,7 +59,6 @@ class CrossLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.300+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -85,10 +82,9 @@ class CrossLaneTest extends TestCase
         $clock = new Earth;
 
         $strategy = $determinate(
-            (new Set(State::class))
+            (new Stream(State::class))
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.200+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -103,7 +99,6 @@ class CrossLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.300+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -127,10 +122,9 @@ class CrossLaneTest extends TestCase
         $clock = new Earth;
 
         $strategy = $determinate(
-            (new Set(State::class))
+            (new Stream(State::class))
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.200+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -145,7 +139,6 @@ class CrossLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.300+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -169,10 +162,9 @@ class CrossLaneTest extends TestCase
         $clock = new Earth;
 
         $strategy = $determinate(
-            (new Set(State::class))
+            (new Stream(State::class))
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.200+0000'),
                         (new Map('string', Measure::class))
                             ->put(
@@ -187,7 +179,6 @@ class CrossLaneTest extends TestCase
                 )
                 ->add(
                     new State(
-                        $this->createMock(Identity::class),
                         $clock->at('2017-01-01T00:00:00.300+0000'),
                         (new Map('string', Measure::class))
                             ->put(

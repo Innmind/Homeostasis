@@ -11,7 +11,7 @@ use Innmind\Homeostasis\{
     Exception\StrategyNotDeterminable,
     Exception\RuntimeException
 };
-use Innmind\Immutable\Set;
+use Innmind\Immutable\Stream;
 use PHPUnit\Framework\TestCase;
 
 class DelegateTest extends TestCase
@@ -29,7 +29,7 @@ class DelegateTest extends TestCase
      */
     public function testThrowByDefault()
     {
-        (new Delegate)(new Set(State::class));
+        (new Delegate)(new Stream(State::class));
     }
 
     public function testInvokation()
@@ -39,7 +39,7 @@ class DelegateTest extends TestCase
             $second = $this->createMock(StrategyDeterminator::class),
             $third = $this->createMock(StrategyDeterminator::class)
         );
-        $set = new Set(State::class);
+        $set = new Stream(State::class);
         $first
             ->expects($this->once())
             ->method('__invoke')
@@ -78,6 +78,6 @@ class DelegateTest extends TestCase
                 )
             );
 
-        $delegate(new Set(State::class));
+        $delegate(new Stream(State::class));
     }
 }

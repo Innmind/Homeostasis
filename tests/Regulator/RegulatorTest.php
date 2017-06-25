@@ -7,7 +7,7 @@ use Innmind\Homeostasis\{
     Regulator\Regulator,
     Regulator as RegulatorInterface,
     Factor,
-    StateRepository,
+    StateHistory,
     Actuator,
     Actuator\StrategyDeterminator,
     Sensor,
@@ -21,7 +21,10 @@ use Innmind\TimeContinuum\{
     PointInTimeInterface
 };
 use Innmind\Math\Algebra\Number\Number;
-use Innmind\Immutable\Set;
+use Innmind\Immutable\{
+    Set,
+    Stream
+};
 use PHPUnit\Framework\TestCase;
 
 class RegulatorTest extends TestCase
@@ -32,7 +35,7 @@ class RegulatorTest extends TestCase
             RegulatorInterface::class,
             new Regulator(
                 new Set(Factor::class),
-                $this->createMock(StateRepository::class),
+                $this->createMock(StateHistory::class),
                 $this->createMock(TimeContinuumInterface::class),
                 $this->createMock(StrategyDeterminator::class),
                 $this->createMock(Actuator::class)
@@ -45,7 +48,7 @@ class RegulatorTest extends TestCase
         $regulate = new Regulator(
             (new Set(Factor::class))
                 ->add($factor = $this->createMock(Factor::class)),
-            $repository = $this->createMock(StateRepository::class),
+            $history = $this->createMock(StateHistory::class),
             $clock = $this->createMock(TimeContinuumInterface::class),
             $determinator = $this->createMock(StrategyDeterminator::class),
             $actuator = $this->createMock(Actuator::class)
@@ -73,7 +76,7 @@ class RegulatorTest extends TestCase
             ->expects($this->once())
             ->method('now')
             ->willReturn($now = $this->createMock(PointInTimeInterface::class));
-        $repository
+        $history
             ->expects($this->once())
             ->method('add')
             ->with($this->callback(function(State $state) use (&$built, $now, $measure): bool {
@@ -83,26 +86,26 @@ class RegulatorTest extends TestCase
                     $state->factor('cpu') === $measure;
             }))
             ->will($this->returnSelf());
-        $repository
+        $history
             ->expects($this->once())
             ->method('all')
             ->will($this->returnCallback(function() use (&$built) {
-                return (new Set(State::class))->add($built);
+                return (new Stream(State::class))->add($built);
             }));
         $determinator
             ->expects($this->once())
             ->method('__invoke')
-            ->with($this->callback(function(Set $set) use (&$built) {
-                return $set->size() === 1 &&
-                    $set->current() === $built;
+            ->with($this->callback(function(Stream $stream) use (&$built) {
+                return $stream->size() === 1 &&
+                    $stream->current() === $built;
             }))
             ->willReturn(Strategy::increase());
         $actuator
             ->expects($this->once())
             ->method('increase')
-            ->with($this->callback(function(Set $set) use (&$built) {
-                return $set->size() === 1 &&
-                    $set->current() === $built;
+            ->with($this->callback(function(Stream $stream) use (&$built) {
+                return $stream->size() === 1 &&
+                    $stream->current() === $built;
             }));
 
         $this->assertSame(Strategy::increase(), $regulate());

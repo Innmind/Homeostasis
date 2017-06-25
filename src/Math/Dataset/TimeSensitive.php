@@ -6,7 +6,7 @@ namespace Innmind\Homeostasis\Math\Dataset;
 use Innmind\Homeostasis\State;
 use Innmind\Math\Regression\Dataset;
 use Innmind\Immutable\{
-    SetInterface,
+    StreamInterface,
     Stream,
     Pair
 };
@@ -14,33 +14,29 @@ use Innmind\Immutable\{
 final class TimeSensitive
 {
     /**
-     * @param SetInterface<State> $states
+     * @param StreamInterface<State> $states
      */
-    public function __invoke(SetInterface $states): Dataset
+    public function __invoke(StreamInterface $states): Dataset
     {
-        $points = $states
-            ->sort(function(State $a, State $b): bool {
-                return $a->time()->aheadOf($b->time());
-            })
-            ->reduce(
-                new Stream(Pair::class),
-                static function(Stream $points, State $state): Stream {
-                    $key = 0;
+        $points = $states->reduce(
+            new Stream(Pair::class),
+            static function(Stream $points, State $state): Stream {
+                $key = 0;
 
-                    if ($points->size() > 0) {
-                        $key = $state
-                            ->time()
-                            ->elapsedSince(
-                                $points->first()->value()->time()
-                            )
-                            ->milliseconds();
+                if ($points->size() > 0) {
+                    $key = $state
+                        ->time()
+                        ->elapsedSince(
+                            $points->first()->value()->time()
+                        )
+                        ->milliseconds();
 
-                    }
-                    return $points->add(
-                        new Pair($key, $state)
-                    );
                 }
-            );
+                return $points->add(
+                    new Pair($key, $state)
+                );
+            }
+        );
         $previous = $points->first()->key();
         $lowestGap = $points
             ->drop(1)

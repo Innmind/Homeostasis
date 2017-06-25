@@ -6,10 +6,9 @@ namespace Innmind\Homeostasis\Regulator;
 use Innmind\Homeostasis\{
     Regulator as RegulatorInterface,
     Strategy,
-    StateRepository,
+    StateHistory,
     Factor,
     State,
-    State\Identity\PointInTime,
     Sensor\Measure,
     Actuator,
     Actuator\StrategyDeterminator,
@@ -24,14 +23,14 @@ use Innmind\Immutable\{
 final class Regulator implements RegulatorInterface
 {
     private $factors;
-    private $repository;
+    private $history;
     private $clock;
     private $strategyDeterminator;
     private $actuator;
 
     public function __construct(
         SetInterface $factors,
-        StateRepository $repository,
+        StateHistory $history,
         TimeContinuumInterface $clock,
         StrategyDeterminator $strategyDeterminator,
         Actuator $actuator
@@ -41,7 +40,7 @@ final class Regulator implements RegulatorInterface
         }
 
         $this->factors = $factors;
-        $this->repository = $repository;
+        $this->history = $history;
         $this->clock = $clock;
         $this->strategyDeterminator = $strategyDeterminator;
         $this->actuator = $actuator;
@@ -50,7 +49,7 @@ final class Regulator implements RegulatorInterface
     public function __invoke(): Strategy
     {
         $states = $this
-            ->repository
+            ->history
             ->add($this->createState())
             ->all();
 
@@ -63,11 +62,8 @@ final class Regulator implements RegulatorInterface
 
     private function createState(): State
     {
-        $now = $this->clock->now();
-
         return new State(
-            new PointInTime($now),
-            $now,
+            $this->clock->now(),
             $this->factors->reduce(
                 new Map('string', Measure::class),
                 static function(Map $measures, Factor $factor): Map {

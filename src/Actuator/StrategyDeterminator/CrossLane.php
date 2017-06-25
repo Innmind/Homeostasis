@@ -15,7 +15,7 @@ use Innmind\Math\{
     DefinitionSet\Range,
     Regression\LinearRegression
 };
-use Innmind\Immutable\SetInterface;
+use Innmind\Immutable\StreamInterface;
 
 final class CrossLane implements StrategyDeterminator
 {
@@ -31,7 +31,7 @@ final class CrossLane implements StrategyDeterminator
     /**
      * {@inheritdoc}
      */
-    public function __invoke(SetInterface $states): Strategy
+    public function __invoke(StreamInterface $states): Strategy
     {
         $dataset = ($this->augment)(
             (new TimeSensitive)($states)

@@ -3,32 +3,32 @@ declare(strict_types = 1);
 
 namespace Innmind\Homeostasis;
 
-use Innmind\Immutable\SetInterface;
+use Innmind\Immutable\StreamInterface;
 
 interface Actuator
 {
     /**
-     * @param SetInterface<State> $states
+     * @param StreamInterface<State> $states
      */
-    public function dramaticDecrease(SetInterface $states): void;
+    public function dramaticDecrease(StreamInterface $states): void;
 
     /**
-     * @param SetInterface<State> $states
+     * @param StreamInterface<State> $states
      */
-    public function decrease(SetInterface $states): void;
+    public function decrease(StreamInterface $states): void;
 
     /**
-     * @param SetInterface<State> $states
+     * @param StreamInterface<State> $states
      */
-    public function holdSteady(SetInterface $states): void;
+    public function holdSteady(StreamInterface $states): void;
 
     /**
-     * @param SetInterface<State> $states
+     * @param StreamInterface<State> $states
      */
-    public function increase(SetInterface $states): void;
+    public function increase(StreamInterface $states): void;
 
     /**
-     * @param SetInterface<State> $states
+     * @param StreamInterface<State> $states
      */
-    public function dramaticIncrease(SetInterface $states): void;
+    public function dramaticIncrease(StreamInterface $states): void;
 }

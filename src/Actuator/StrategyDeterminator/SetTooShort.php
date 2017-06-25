@@ -17,7 +17,7 @@ use Innmind\Math\{
 };
 use Innmind\Immutable\{
     MapInterface,
-    SetInterface
+    StreamInterface
 };
 
 final class SetTooShort implements StrategyDeterminator
@@ -39,7 +39,7 @@ final class SetTooShort implements StrategyDeterminator
     /**
      * {@inheritdoc}
      */
-    public function __invoke(SetInterface $states): Strategy
+    public function __invoke(StreamInterface $states): Strategy
     {
         if ($states->size() > 4) {
             throw new StrategyNotDeterminable;

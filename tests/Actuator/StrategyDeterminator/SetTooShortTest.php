@@ -8,7 +8,6 @@ use Innmind\Homeostasis\{
     Actuator\StrategyDeterminator,
     Strategy,
     State,
-    State\Identity,
     Sensor\Measure,
     Sensor\Measure\Weight
 };
@@ -20,8 +19,8 @@ use Innmind\Math\{
 use Innmind\TimeContinuum\PointInTimeInterface;
 use Innmind\Immutable\{
     Map,
-    Set,
-    SetInterface
+    Stream,
+    StreamInterface
 };
 use PHPUnit\Framework\TestCase;
 
@@ -55,7 +54,7 @@ class SetTooShortTest extends TestCase
     {
         $determinate = new SetTooShort(new Map(DefinitionSet::class, Strategy::class));
 
-        $strategy = $determinate(new Set(State::class));
+        $strategy = $determinate(new Stream(State::class));
 
         $this->assertSame(Strategy::holdSteady(), $strategy);
     }
@@ -66,13 +65,13 @@ class SetTooShortTest extends TestCase
     public function testThrowWhenStatesTooLong()
     {
         $determinate = new SetTooShort(new Map(DefinitionSet::class, Strategy::class));
-        $set = $this->createMock(SetInterface::class);
-        $set
+        $stream = $this->createMock(StreamInterface::class);
+        $stream
             ->expects($this->once())
             ->method('size')
             ->willReturn(5);
 
-        $determinate($set);
+        $determinate($stream);
     }
 
     /**
@@ -105,7 +104,7 @@ class SetTooShortTest extends TestCase
         );
 
         $strategy = $determinate(
-            (new Set(State::class))->add($state)
+            (new Stream(State::class))->add($state)
         );
 
         $this->assertSame($expected, $strategy);
@@ -123,7 +122,6 @@ class SetTooShortTest extends TestCase
 
         foreach ($values as &$value) {
             $value[1] = new State(
-                $this->createMock(Identity::class),
                 $this->createMock(PointInTimeInterface::class),
                 (new Map('string', Measure::class))
                     ->put(
