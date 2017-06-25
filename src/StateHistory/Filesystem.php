@@ -1,13 +1,11 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\Homeostasis\StateRepository;
+namespace Innmind\Homeostasis\StateHistory;
 
 use Innmind\Homeostasis\{
-    StateRepository,
+    StateHistory,
     State,
-    State\Identity,
-    State\Identity\PointInTime,
     Sensor\Measure,
     Sensor\Measure\Weight,
     TimeContinuum\Format\ISO8601WithMilliseconds
@@ -18,15 +16,18 @@ use Innmind\Filesystem\{
     FileInterface,
     Stream\StringStream
 };
-use Innmind\TimeContinuum\TimeContinuumInterface;
+use Innmind\TimeContinuum\{
+    TimeContinuumInterface,
+    PointInTimeInterface
+};
 use Innmind\Math\Algebra\Number\Number;
 use Innmind\Immutable\{
-    SetInterface,
+    StreamInterface,
     Set,
     Map
 };
 
-final class Filesystem implements StateRepository
+final class Filesystem implements StateHistory
 {
     private $filesystem;
     private $clock;
@@ -39,11 +40,11 @@ final class Filesystem implements StateRepository
         $this->clock = $clock;
     }
 
-    public function add(State $state): StateRepository
+    public function add(State $state): StateHistory
     {
         $this->filesystem->add(
             new File(
-                $this->name($state->identity()),
+                $this->name($state->time()),
                 new StringStream(json_encode($this->normalize($state)))
             )
         );
@@ -51,30 +52,10 @@ final class Filesystem implements StateRepository
         return $this;
     }
 
-    public function get(Identity $identity): State
-    {
-        return $this->denormalize(
-            json_decode(
-                (string) $this
-                    ->filesystem
-                    ->get($this->name($identity))
-                    ->content(),
-                true
-            )
-        );
-    }
-
-    public function remove(Identity $identity): StateRepository
-    {
-        $this->filesystem->remove($this->name($identity));
-
-        return $this;
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function all(): SetInterface
+    public function all(): StreamInterface
     {
         return $this
             ->filesystem
@@ -88,13 +69,36 @@ final class Filesystem implements StateRepository
                         )
                     );
                 }
-            );
+            )
+            ->sort(static function(State $a, State $b): bool {
+                return $a->time()->aheadOf($b->time());
+            });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function keepUp(PointInTimeInterface $time): StateHistory
+    {
+        $this
+            ->filesystem
+            ->all()
+            ->foreach(function(string $name, FileInterface $file) use ($time): void {
+                $state = $this->denormalize(
+                    json_decode((string) $file->content(), true)
+                );
+
+                if ($time->aheadOf($state->time())) {
+                    $this->filesystem->remove($name);
+                }
+            });
+
+        return $this;
     }
 
     private function normalize(State $state): array
     {
         return [
-            'identity' => (string) $state->identity(),
             'time' => $state->time()->format(new ISO8601WithMilliseconds),
             'measures' => $state->measures()->reduce(
                 [],
@@ -110,15 +114,14 @@ final class Filesystem implements StateRepository
     private function denormalize(array $data): State
     {
         return new State(
-            new PointInTime($this->clock->at($data['identity'])),
             $this->clock->at($data['time']),
             $this->denormalizeMeasures($data['measures'])
         );
     }
 
-    private function name(Identity $identity): string
+    private function name(PointInTimeInterface $time): string
     {
-        return md5((string) $identity);
+        return md5($time->format(new ISO8601WithMilliseconds));
     }
 
     private function normalizeMeasure(Measure $measure): array

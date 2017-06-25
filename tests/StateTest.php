@@ -5,7 +5,6 @@ namespace Tests\Innmind\Homeostasis;
 
 use Innmind\Homeostasis\{
     State,
-    State\Identity,
     Sensor\Measure,
     Sensor\Measure\Weight
 };
@@ -19,7 +18,6 @@ class StateTest extends TestCase
     public function testInterface()
     {
         $state = new State(
-            $identity = $this->createMock(Identity::class),
             $time = $this->createMock(PointInTimeInterface::class),
             $measures = (new Map('string', Measure::class))
                 ->put(
@@ -40,7 +38,6 @@ class StateTest extends TestCase
                 )
         );
 
-        $this->assertSame($identity, $state->identity());
         $this->assertSame($time, $state->time());
         $this->assertSame($measures, $state->measures());
         $this->assertSame($cpu, $state->factor('cpu'));
@@ -59,7 +56,6 @@ class StateTest extends TestCase
     public function testThrowWhenInvalidMeasuresKeys()
     {
         new State(
-            $this->createMock(Identity::class),
             $this->createMock(PointInTimeInterface::class),
             new Map('int', Measure::class)
         );
@@ -71,7 +67,6 @@ class StateTest extends TestCase
     public function testThrowWhenInvalidMeasuresValues()
     {
         new State(
-            $this->createMock(Identity::class),
             $this->createMock(PointInTimeInterface::class),
             new Map('string', 'int')
         );
@@ -83,7 +78,6 @@ class StateTest extends TestCase
     public function testThrowWhenSumOfWeightsIsDifferentFromOne()
     {
         new State(
-            $this->createMock(Identity::class),
             $this->createMock(PointInTimeInterface::class),
             (new Map('string', Measure::class))
                 ->put(
