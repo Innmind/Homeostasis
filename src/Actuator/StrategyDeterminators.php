@@ -29,11 +29,11 @@ final class StrategyDeterminators
             return self::$default;
         }
 
-        $veryHigh = new Range(false, new Number(0.8), new Number(1), true);// ]0.8;1]
-        $high = new Range(false, new Number(0.6), new Number(0.8), true);// ]0.6;0.8]
-        $mid = new Range(true, new Number(0.4), new Number(0.6), true);// [0.4;0.6]
-        $low = new Range(true, new Number(0.2), new Number(0.4), false);// [0.2;0.4[
-        $veryLow = new Range(true, new Number(0), new Number(0.2), false);// [0;0.2[
+        $veryHigh = new Range(false, new Number(0.8), new Number(1), true); // ]0.8;1]
+        $high = new Range(false, new Number(0.6), new Number(0.8), true); // ]0.6;0.8]
+        $mid = new Range(true, new Number(0.4), new Number(0.6), true); // [0.4;0.6]
+        $low = new Range(true, new Number(0.2), new Number(0.4), false); // [0.2;0.4[
+        $veryLow = new Range(true, new Number(0), new Number(0.2), false); // [0;0.2[
         $predict = new Augment(new Integer(1));
 
         return self::$default = new Delegate(
