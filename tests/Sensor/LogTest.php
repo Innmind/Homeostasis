@@ -75,4 +75,56 @@ class LogTest extends TestCase
         $this->assertSame(0.125, $measure->value()->value());
         $this->assertSame($weight, $measure->weight());
     }
+
+    public function testLimitUpperBound()
+    {
+        $sensor = new Log(
+            $clock = $this->createMock(TimeContinuumInterface::class),
+            new Synchronous(new Symfony($clock)),
+            new FilesystemAdapter('fixtures/logs/'),
+            $weight = new Weight(new Number(0.5)),
+            (new Polynom(new Integer(2)))->withDegree(
+                new Integer(1),
+                new Number(0)
+            ),
+            function(LogLine $log): bool {
+                return $log->attributes()->contains('level') &&
+                    in_array($log->attributes()->get('level')->value(), ['emergency', 'critical'], true);
+            }
+        );
+        $clock
+            ->expects($this->once())
+            ->method('now')
+            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+
+        $measure = $sensor();
+
+        $this->assertSame(1, $measure->value()->value());
+    }
+
+    public function testLimitLowerBound()
+    {
+        $sensor = new Log(
+            $clock = $this->createMock(TimeContinuumInterface::class),
+            new Synchronous(new Symfony($clock)),
+            new FilesystemAdapter('fixtures/logs/'),
+            $weight = new Weight(new Number(0.5)),
+            (new Polynom(new Integer(-2)))->withDegree(
+                new Integer(1),
+                new Number(0)
+            ),
+            function(LogLine $log): bool {
+                return $log->attributes()->contains('level') &&
+                    in_array($log->attributes()->get('level')->value(), ['emergency', 'critical'], true);
+            }
+        );
+        $clock
+            ->expects($this->once())
+            ->method('now')
+            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+
+        $measure = $sensor();
+
+        $this->assertSame(0, $measure->value()->value());
+    }
 }

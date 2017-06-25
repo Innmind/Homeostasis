@@ -71,4 +71,62 @@ class CpuTest extends TestCase
         $this->assertSame(0.26, $measure->value()->value());
         $this->assertSame($weight, $measure->weight());
     }
+
+    public function testLimitUpperBound()
+    {
+        $sensor = new Cpu(
+            $clock = $this->createMock(TimeContinuumInterface::class),
+            $server = $this->createMock(Server::class),
+            $weight = new Weight(new Number(0.5)),
+            (new Polynom(new Integer(2)))->withDegree(
+                new Integer(1),
+                new Integer(0)
+            )
+        );
+        $clock
+            ->expects($this->once())
+            ->method('now')
+            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+        $server
+            ->expects($this->once())
+            ->method('cpu')
+            ->willReturn(new ServerCpu(
+                new Percentage(42),
+                new Percentage(10),
+                new Percentage(48)
+            ));
+
+        $measure = $sensor();
+
+        $this->assertSame(1, $measure->value()->value());
+    }
+
+    public function testLimitLowerBound()
+    {
+        $sensor = new Cpu(
+            $clock = $this->createMock(TimeContinuumInterface::class),
+            $server = $this->createMock(Server::class),
+            $weight = new Weight(new Number(0.5)),
+            (new Polynom(new Integer(-2)))->withDegree(
+                new Integer(1),
+                new Integer(0)
+            )
+        );
+        $clock
+            ->expects($this->once())
+            ->method('now')
+            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+        $server
+            ->expects($this->once())
+            ->method('cpu')
+            ->willReturn(new ServerCpu(
+                new Percentage(42),
+                new Percentage(10),
+                new Percentage(48)
+            ));
+
+        $measure = $sensor();
+
+        $this->assertSame(0, $measure->value()->value());
+    }
 }
