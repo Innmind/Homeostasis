@@ -159,9 +159,9 @@ class FilesystemTest extends TestCase
             $clock = new Earth
         );
         $now = $clock->now()->format(new ISO8601WithMilliseconds);
-        usleep(500);
+        sleep(1);
         $mark = $clock->now();
-        usleep(500);
+        sleep(1);
         $now2 = $clock->now()->format(new ISO8601WithMilliseconds);
         $filesystem
             ->expects($this->once())
