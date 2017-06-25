@@ -18,7 +18,8 @@ use Innmind\Filesystem\{
 };
 use Innmind\Math\{
     Polynom\Polynom,
-    Algebra\Number\Number
+    Algebra\Number\Number,
+    Algebra\Integer
 };
 use Innmind\Immutable\Stream;
 
@@ -64,10 +65,19 @@ final class Log implements Sensor
             return ($this->watch)($log);
         });
         $percentage = $errors->size() / $logs->size();
+        $health = ($this->health)(new Number($percentage));
+
+        if ($health->higherThan(new Integer(1))) {
+            $health = new Integer(1);
+        }
+
+        if ((new Integer(0))->higherThan($health)) {
+            $health = new Integer(0);
+        }
 
         return new Measure(
             $this->clock->now(),
-            ($this->health)(new Number($percentage)),
+            $health,
             $this->weight
         );
     }

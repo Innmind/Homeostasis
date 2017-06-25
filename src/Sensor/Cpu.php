@@ -11,7 +11,8 @@ use Innmind\TimeContinuum\TimeContinuumInterface;
 use Innmind\Server\Status\Server;
 use Innmind\Math\{
     Polynom\Polynom,
-    Algebra\Number\Number
+    Algebra\Number\Number,
+    Algebra\Integer
 };
 
 final class Cpu implements Sensor
@@ -38,10 +39,19 @@ final class Cpu implements Sensor
         $cpu = $this->server->cpu();
         $used = $cpu->user()->toFloat() + $cpu->system()->toFloat();
         $used /= 100;
+        $health = ($this->health)(new Number($used));
+
+        if ($health->higherThan(new Integer(1))) {
+            $health = new Integer(1);
+        }
+
+        if ((new Integer(0))->higherThan($health)) {
+            $health = new Integer(0);
+        }
 
         return new Measure(
             $this->clock->now(),
-            ($this->health)(new Number($used)),
+            $health,
             $this->weight
         );
     }
