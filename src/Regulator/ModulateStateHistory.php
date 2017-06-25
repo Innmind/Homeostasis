@@ -38,6 +38,8 @@ final class ModulateStateHistory implements Regulator
     private $actions;
     private $states;
     private $clock;
+    private $maxHistory;
+    private $minHistory;
     private $threshold;
 
     public function __construct(
