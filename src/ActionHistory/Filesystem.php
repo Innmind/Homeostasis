@@ -19,7 +19,6 @@ use Innmind\TimeContinuum\{
     TimeContinuumInterface,
     PointInTimeInterface
 };
-use Innmind\Math\Algebra\Number\Number;
 use Innmind\Immutable\{
     StreamInterface,
     Set,
