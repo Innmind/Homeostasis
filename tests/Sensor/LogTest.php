@@ -21,7 +21,8 @@ use Innmind\LogReader\{
 };
 use Innmind\Filesystem\{
     AdapterInterface,
-    Adapter\FilesystemAdapter
+    Adapter\FilesystemAdapter,
+    Adapter\MemoryAdapter
 };
 use Innmind\Math\{
     Polynom\Polynom,
@@ -73,6 +74,35 @@ class LogTest extends TestCase
         $this->assertInstanceOf(Measure::class, $measure);
         $this->assertSame($now, $measure->time());
         $this->assertSame(0.125, $measure->value()->value());
+        $this->assertSame($weight, $measure->weight());
+    }
+
+    public function testInvokationWhenNoLog()
+    {
+        $sensor = new Log(
+            $clock = $this->createMock(TimeContinuumInterface::class),
+            new Synchronous(new Symfony($clock)),
+            new MemoryAdapter,
+            $weight = new Weight(new Number(0.5)),
+            (new Polynom)->withDegree(
+                new Integer(1),
+                new Number(0.5)
+            ),
+            function(LogLine $log): bool {
+                return $log->attributes()->contains('level') &&
+                    in_array($log->attributes()->get('level')->value(), ['emergency', 'critical'], true);
+            }
+        );
+        $clock
+            ->expects($this->once())
+            ->method('now')
+            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+
+        $measure = $sensor();
+
+        $this->assertInstanceOf(Measure::class, $measure);
+        $this->assertSame($now, $measure->time());
+        $this->assertSame(0.0, $measure->value()->value());
         $this->assertSame($weight, $measure->weight());
     }
 
