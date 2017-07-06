@@ -64,7 +64,7 @@ final class Log implements Sensor
         $errors = $logs->filter(function(LogLine $log): bool {
             return ($this->watch)($log);
         });
-        $percentage = $errors->size() / $logs->size();
+        $percentage = $logs->size() === 0 ? 0 : $errors->size() / $logs->size();
         $health = ($this->health)(new Number($percentage));
 
         if ($health->higherThan(new Integer(1))) {
