@@ -11,9 +11,8 @@ use Innmind\Homeostasis\{
     TimeContinuum\Format\ISO8601WithMilliseconds
 };
 use Innmind\Filesystem\{
-    AdapterInterface,
+    Adapter,
     File,
-    FileInterface,
     Stream\StringStream
 };
 use Innmind\TimeContinuum\{
@@ -34,7 +33,7 @@ class FilesystemTest extends TestCase
         $this->assertInstanceOf(
             ActionHistory::class,
             new Filesystem(
-                $this->createMock(AdapterInterface::class),
+                $this->createMock(Adapter::class),
                 $this->createMock(TimeContinuumInterface::class)
             )
         );
@@ -43,7 +42,7 @@ class FilesystemTest extends TestCase
     public function testAdd()
     {
         $history = new Filesystem(
-            $filesystem = $this->createMock(AdapterInterface::class),
+            $filesystem = $this->createMock(Adapter::class),
             $clock = new Earth
         );
         $now = $clock->now();
@@ -69,7 +68,7 @@ class FilesystemTest extends TestCase
     public function testAll()
     {
         $history = new Filesystem(
-            $filesystem = $this->createMock(AdapterInterface::class),
+            $filesystem = $this->createMock(Adapter::class),
             $clock = new Earth
         );
         $now = $clock->now()->format(new ISO8601WithMilliseconds);
@@ -79,10 +78,10 @@ class FilesystemTest extends TestCase
             ->expects($this->once())
             ->method('all')
             ->willReturn(
-                (new Map('string', FileInterface::class))
+                (new Map('string', File::class))
                     ->put(
                         md5('foo'),
-                        new File(
+                        new File\File(
                             md5('foo'),
                             new StringStream(json_encode([
                                 'time' => $now,
@@ -92,7 +91,7 @@ class FilesystemTest extends TestCase
                     )
                     ->put(
                         md5('bar'),
-                        new File(
+                        new File\File(
                             md5('bar'),
                             new StringStream(json_encode([
                                 'time' => $now2,
@@ -123,7 +122,7 @@ class FilesystemTest extends TestCase
     public function testKeepUp()
     {
         $history = new Filesystem(
-            $filesystem = $this->createMock(AdapterInterface::class),
+            $filesystem = $this->createMock(Adapter::class),
             $clock = new Earth
         );
         $now = $clock->now()->format(new ISO8601WithMilliseconds);
@@ -135,10 +134,10 @@ class FilesystemTest extends TestCase
             ->expects($this->once())
             ->method('all')
             ->willReturn(
-                (new Map('string', FileInterface::class))
+                (new Map('string', File::class))
                     ->put(
                         md5('foo'),
-                        new File(
+                        new File\File(
                             md5('foo'),
                             new StringStream(json_encode([
                                 'time' => $now,
@@ -148,7 +147,7 @@ class FilesystemTest extends TestCase
                     )
                     ->put(
                         md5('bar'),
-                        new File(
+                        new File\File(
                             md5('bar'),
                             new StringStream(json_encode([
                                 'time' => $now2,
