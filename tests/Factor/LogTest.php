@@ -11,7 +11,7 @@ use Innmind\Homeostasis\{
 };
 use Innmind\TimeContinuum\TimeContinuumInterface;
 use Innmind\LogReader\Reader;
-use Innmind\Filesystem\AdapterInterface;
+use Innmind\Filesystem\Adapter;
 use Innmind\Math\{
     Polynom\Polynom,
     Algebra\Number\Number
@@ -28,7 +28,7 @@ class LogTest extends TestCase
             $factor = new Log(
                 $this->createMock(TimeContinuumInterface::class),
                 $this->createMock(Reader::class),
-                $this->createMock(AdapterInterface::class),
+                $this->createMock(Adapter::class),
                 new Weight(new Number(0.5)),
                 new Polynom,
                 function(){},

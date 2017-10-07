@@ -11,7 +11,7 @@ use Innmind\Homeostasis\{
 };
 use Innmind\TimeContinuum\TimeContinuumInterface;
 use Innmind\LogReader\Reader;
-use Innmind\Filesystem\AdapterInterface;
+use Innmind\Filesystem\Adapter;
 use Innmind\Math\Polynom\Polynom;
 
 final class Log implements Factor
@@ -22,7 +22,7 @@ final class Log implements Factor
     public function __construct(
         TimeContinuumInterface $clock,
         Reader $reader,
-        AdapterInterface $directory,
+        Adapter $directory,
         Weight $weight,
         Polynom $health,
         callable $watch,

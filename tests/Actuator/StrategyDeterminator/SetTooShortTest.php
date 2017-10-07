@@ -35,7 +35,8 @@ class SetTooShortTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Homeostasis\Exception\InvalidStrategies
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 1 must be of type MapInterface<Innmind\Math\DefinitionSet\Set, Innmind\Homeostasis\Strategy>
      */
     public function testThrowWhenInvalidMapKey()
     {
@@ -43,7 +44,8 @@ class SetTooShortTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Homeostasis\Exception\InvalidStrategies
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 1 must be of type MapInterface<Innmind\Math\DefinitionSet\Set, Innmind\Homeostasis\Strategy>
      */
     public function testThrowWhenInvalidMapValue()
     {

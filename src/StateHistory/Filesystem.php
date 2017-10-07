@@ -11,9 +11,8 @@ use Innmind\Homeostasis\{
     TimeContinuum\Format\ISO8601WithMilliseconds
 };
 use Innmind\Filesystem\{
-    AdapterInterface,
+    Adapter,
     File,
-    FileInterface,
     Stream\StringStream
 };
 use Innmind\TimeContinuum\{
@@ -33,7 +32,7 @@ final class Filesystem implements StateHistory
     private $clock;
 
     public function __construct(
-        AdapterInterface $filesystem,
+        Adapter $filesystem,
         TimeContinuumInterface $clock
     ) {
         $this->filesystem = $filesystem;
@@ -43,7 +42,7 @@ final class Filesystem implements StateHistory
     public function add(State $state): StateHistory
     {
         $this->filesystem->add(
-            new File(
+            new File\File(
                 $this->name($state->time()),
                 new StringStream(json_encode($this->normalize($state)))
             )
@@ -62,7 +61,7 @@ final class Filesystem implements StateHistory
             ->all()
             ->reduce(
                 new Set(State::class),
-                function(Set $states, string $name, FileInterface $file): Set {
+                function(Set $states, string $name, File $file): Set {
                     return $states->add(
                         $this->denormalize(
                             json_decode((string) $file->content(), true)
@@ -83,7 +82,7 @@ final class Filesystem implements StateHistory
         $this
             ->filesystem
             ->all()
-            ->foreach(function(string $name, FileInterface $file) use ($time): void {
+            ->foreach(function(string $name, File $file) use ($time): void {
                 $state = $this->denormalize(
                     json_decode((string) $file->content(), true)
                 );

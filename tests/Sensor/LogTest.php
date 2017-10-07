@@ -20,7 +20,7 @@ use Innmind\LogReader\{
     Reader\LineParser\Symfony
 };
 use Innmind\Filesystem\{
-    AdapterInterface,
+    Adapter,
     Adapter\FilesystemAdapter,
     Adapter\MemoryAdapter
 };
@@ -40,7 +40,7 @@ class LogTest extends TestCase
             new Log(
                 $this->createMock(TimeContinuumInterface::class),
                 $this->createMock(Reader::class),
-                $this->createMock(AdapterInterface::class),
+                $this->createMock(Adapter::class),
                 new Weight(new Number(0.5)),
                 new Polynom,
                 function(){}

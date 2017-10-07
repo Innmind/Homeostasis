@@ -51,7 +51,8 @@ class StateTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Homeostasis\Exception\InvalidMeasures
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, Innmind\Homeostasis\Sensor\Measure>
      */
     public function testThrowWhenInvalidMeasuresKeys()
     {
@@ -62,7 +63,8 @@ class StateTest extends TestCase
     }
 
     /**
-     * @expectedException Innmind\Homeostasis\Exception\InvalidMeasures
+     * @expectedException TypeError
+     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, Innmind\Homeostasis\Sensor\Measure>
      */
     public function testThrowWhenInvalidMeasuresValues()
     {

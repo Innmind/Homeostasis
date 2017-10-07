@@ -13,8 +13,8 @@ use Innmind\LogReader\{
     Log as LogLine
 };
 use Innmind\Filesystem\{
-    AdapterInterface,
-    FileInterface
+    Adapter,
+    File
 };
 use Innmind\Math\{
     Polynom\Polynom,
@@ -35,7 +35,7 @@ final class Log implements Sensor
     public function __construct(
         TimeContinuumInterface $clock,
         Reader $reader,
-        AdapterInterface $directory,
+        Adapter $directory,
         Weight $weight,
         Polynom $health,
         callable $watch
@@ -55,7 +55,7 @@ final class Log implements Sensor
             ->all()
             ->reduce(
                 new Stream(LogLine::class),
-                function(Stream $logs, string $name, FileInterface $file): Stream {
+                function(Stream $logs, string $name, File $file): Stream {
                     return $logs->append(
                         $this->reader->parse($file)
                     );
