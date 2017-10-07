@@ -7,7 +7,6 @@ use Innmind\Homeostasis\{
     Actuator\StrategyDeterminator,
     Strategy,
     State,
-    Exception\InvalidStrategies,
     Exception\StrategyNotDeterminable
 };
 use Innmind\Math\{
@@ -30,7 +29,11 @@ final class SetTooShort implements StrategyDeterminator
             (string) $strategies->keyType() !== Set::class ||
             (string) $strategies->valueType() !== Strategy::class
         ) {
-            throw new InvalidStrategies;
+            throw new \TypeError(sprintf(
+                'Argument 1 must be of type MapInterface<%s, %s>',
+                Set::class,
+                Strategy::class
+            ));
         }
 
         $this->strategies = $strategies;

@@ -5,7 +5,6 @@ namespace Innmind\Homeostasis;
 
 use Innmind\Homeostasis\{
     Sensor\Measure,
-    Exception\InvalidMeasures,
     Exception\SumOfWeightsMustBeOne
 };
 use Innmind\Math\{
@@ -33,7 +32,10 @@ final class State
             (string) $measures->keyType() !== 'string' ||
             (string) $measures->valueType() !== Measure::class
         ) {
-            throw new InvalidMeasures;
+            throw new \TypeError(sprintf(
+                'Argument 2 must be of type MapInterface<string, %s>',
+                Measure::class
+            ));
         }
 
         $weight = $measures->reduce(

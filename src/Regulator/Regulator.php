@@ -11,8 +11,7 @@ use Innmind\Homeostasis\{
     State,
     Sensor\Measure,
     Actuator,
-    Actuator\StrategyDeterminator,
-    Exception\InvalidFactors
+    Actuator\StrategyDeterminator
 };
 use Innmind\TimeContinuum\TimeContinuumInterface;
 use Innmind\Immutable\{
@@ -36,7 +35,10 @@ final class Regulator implements RegulatorInterface
         Actuator $actuator
     ) {
         if ((string) $factors->type() !== Factor::class) {
-            throw new InvalidFactors;
+            throw new \TypeError(sprintf(
+                'Argument 1 must be of type SetInterface<%s>',
+                Factor::class
+            ));
         }
 
         $this->factors = $factors;
