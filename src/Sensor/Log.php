@@ -14,7 +14,8 @@ use Innmind\LogReader\{
 };
 use Innmind\Filesystem\{
     Adapter,
-    File
+    File,
+    Directory
 };
 use Innmind\Math\{
     Polynom\Polynom,
@@ -53,6 +54,9 @@ final class Log implements Sensor
         $logs = $this
             ->directory
             ->all()
+            ->filter(static function(string $name, File $file): bool {
+                return !$file instanceof Directory;
+            })
             ->reduce(
                 new Stream(LogLine::class),
                 function(Stream $logs, string $name, File $file): Stream {
