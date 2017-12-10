@@ -46,13 +46,6 @@ final class CrossLane implements StrategyDeterminator
                 )
         );
 
-        if (
-            !$this->bounds->contains($first) ||
-            !$this->bounds->contains($furthest)
-        ) {
-
-        }
-
         return $this->strategy($first, $furthest, $trend);
     }
 
