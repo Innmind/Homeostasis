@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 namespace Innmind\Homeostasis\Math\PolynomialRegression;
 
-use function Innmind\Math\add;
 use Innmind\Math\{
     Regression\Dataset,
     Regression\PolynomialRegression,
@@ -33,7 +32,7 @@ final class BestFit
                 $bestFit = $regressed;
             }
 
-            $a = new Integer(add($a, 1)->value());
+            $a = $a->increment();
         } while ($b->higherThan($a) || $b->equals($a));
 
         return $bestFit->polynom();
