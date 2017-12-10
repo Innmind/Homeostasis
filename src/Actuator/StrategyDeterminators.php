@@ -9,6 +9,7 @@ use Innmind\Homeostasis\{
     Actuator\StrategyDeterminator\SetTooShort,
     Actuator\StrategyDeterminator\WaterLane,
     Actuator\StrategyDeterminator\CrossLane,
+    Actuator\StrategyDeterminator\HoldSteadyOnError,
     Math\Dataset\Augment
 };
 use Innmind\Math\{
@@ -36,7 +37,7 @@ final class StrategyDeterminators
         $veryLow = new Range(true, new Number(0), new Number(0.2), false); // [0;0.2[
         $predict = new Augment(new Integer(1));
 
-        return self::$default = new Delegate(
+        $delegate = new Delegate(
             new SetTooShort(
                 (new Map(Set::class, Strategy::class))
                     ->put($veryHigh, Strategy::dramaticDecrease())
@@ -77,5 +78,7 @@ final class StrategyDeterminators
             ),
             new CrossLane($predict)
         );
+
+        return self::$default = new HoldSteadyOnError($delegate);
     }
 }
