@@ -8,11 +8,21 @@ use Innmind\Homeostasis\{
     Regulator,
     Strategy
 };
-use Symfony\Component\Filesystem\LockHandler;
+use Symfony\Component\Lock\{
+    Factory,
+    Store\FlockStore
+};
 use PHPUnit\Framework\TestCase;
 
 class ThreadSafeTest extends TestCase
 {
+    private $lock;
+
+    public function setUp()
+    {
+        $this->lock = new Factory(new FlockStore);
+    }
+
     public function testInterface()
     {
         $this->assertInstanceOf(
@@ -37,9 +47,9 @@ class ThreadSafeTest extends TestCase
 
         $this->assertSame(Strategy::increase(), $strategy);
 
-        $handler = new LockHandler('homeostasis');
+        $lock = $this->lock->createLock('homeostasis');
 
-        $this->assertTrue($handler->lock());
+        $this->assertTrue($lock->acquire());
     }
 
     /**
@@ -47,8 +57,8 @@ class ThreadSafeTest extends TestCase
      */
     public function testThrowWhenHomeostasisAlreadyInProcess()
     {
-        $handler = new LockHandler('homeostasis');
-        $handler->lock();
+        $lock = $this->lock->createLock('homeostasis');
+        $lock->acquire();
 
         $regulate = new ThreadSafe(
             $inner = $this->createMock(Regulator::class)
