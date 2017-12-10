@@ -8,27 +8,35 @@ use Innmind\Homeostasis\{
     Strategy,
     Exception\HomeostasisAlreadyInProcess
 };
-use Symfony\Component\Filesystem\LockHandler;
+use Symfony\Component\Lock\{
+    Factory,
+    Store\FlockStore
+};
 
 final class ThreadSafe implements Regulator
 {
     private $regulate;
+    private $lock;
 
     public function __construct(Regulator $regulator)
     {
         $this->regulate = $regulator;
+        $this->lock = new Factory(new FlockStore);
     }
 
     public function __invoke(): Strategy
     {
-        $handler = new LockHandler('homeostasis');
+        $lock = $this->lock->createLock('homeostasis');
 
-        if (!$handler->lock()) {
+        if (!$lock->acquire()) {
             throw new HomeostasisAlreadyInProcess;
         }
 
-        $strategy = ($this->regulate)();
-        $handler->release();
+        try {
+            $strategy = ($this->regulate)();
+        } finally {
+            $lock->release();
+        }
 
         return $strategy;
     }

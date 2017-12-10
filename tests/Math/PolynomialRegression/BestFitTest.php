@@ -49,4 +49,19 @@ class BestFitTest extends TestCase
         $this->assertSame(184.66906744449, $polynom->degree(5)->coeff()->value());
         $this->assertSame(-64.975065630889, $polynom->degree(6)->coeff()->value());
     }
+
+    /**
+     * @expectedException Innmind\Homeostasis\Exception\BestFitNotDeterminable
+     */
+    public function testThrowWhenBestFitNotDeterminable()
+    {
+        $fit = new BestFit(
+            Dataset::fromArray([
+                [2, 3],
+                [1, 1/3],
+            ])
+        );
+
+        $fit(new Integer(5), new Integer(5));
+    }
 }

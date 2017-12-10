@@ -3,12 +3,13 @@ declare(strict_types = 1);
 
 namespace Innmind\Homeostasis\Math\PolynomialRegression;
 
-use function Innmind\Math\add;
+use Innmind\Homeostasis\Exception\BestFitNotDeterminable;
 use Innmind\Math\{
     Regression\Dataset,
     Regression\PolynomialRegression,
     Algebra\Integer,
-    Polynom\Polynom
+    Polynom\Polynom,
+    Exception\Exception
 };
 
 final class BestFit
@@ -23,18 +24,26 @@ final class BestFit
     public function __invoke(Integer $a, Integer $b): Polynom
     {
         do {
-            $regressed = new PolynomialRegression($this->dataset, $a);
+            try {
+                $regressed = new PolynomialRegression($this->dataset, $a);
 
-            if (!isset($bestFit)) {
-                $bestFit = $regressed;
+                if (!isset($bestFit)) {
+                    $bestFit = $regressed;
+                }
+
+                if ($bestFit->rootMeanSquareDeviation()->higherThan($regressed->rootMeanSquareDeviation())) {
+                    $bestFit = $regressed;
+                }
+            } catch (Exception $e) {
+                //attempt higher degree
             }
 
-            if ($bestFit->rootMeanSquareDeviation()->higherThan($regressed->rootMeanSquareDeviation())) {
-                $bestFit = $regressed;
-            }
-
-            $a = new Integer(add($a, 1)->value());
+            $a = $a->increment();
         } while ($b->higherThan($a) || $b->equals($a));
+
+        if (!isset($bestFit)) {
+            throw new BestFitNotDeterminable;
+        }
 
         return $bestFit->polynom();
     }
