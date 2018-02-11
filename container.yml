@@ -1,0 +1,50 @@
+arguments:
+    factors: set<Innmind\Homeostasis\Factor>
+    stateFilesystem: Innmind\Filesystem\Adapter
+    clock: Innmind\TimeContinuum\TimeContinuumInterface
+    actuator: Innmind\Homeostasis\Actuator
+    actionFilesystem: '?Innmind\Filesystem\Adapter'
+    maxHistory: '?Innmind\TimeContinuum\ElapsedPeriod'
+    minHistory: '?Innmind\TimeContinuum\ElapsedPeriod'
+    strategyDeterminator: Innmind\Homeostasis\Actuator\StrategyDeterminator ?? $strategyDeterminator
+
+expose:
+    default: '$regulator.default'
+    modulateStateHistory: '$regulator.modulateStateHistory'
+    threadSafe: '$regulator.threadSafe'
+    regulator: '$regulator'
+
+services:
+    regulator:
+        default Innmind\Homeostasis\Regulator\Regulator:
+            - '$factors'
+            - '$stateHistory'
+            - '$clock'
+            - '$strategyDeterminator'
+            - '$actuator'
+
+        modulateStateHistory Innmind\Homeostasis\Regulator\ModulateStateHistory:
+            - '@decorated'
+            - '$actionHistory'
+            - '$stateHistory'
+            - '$clock'
+            - '$maxHistory'
+            - '$minHistory'
+
+        threadSafe Innmind\Homeostasis\Regulator\ThreadSafe:
+            - '@decorated'
+
+    regulator stack:
+        - $regulator.threadSafe
+        - $regulator.modulateStateHistory
+        - $regulator.default
+
+    stateHistory Innmind\Homeostasis\StateHistory\Filesystem:
+        - '$stateFilesystem'
+        - '$clock'
+
+    strategyDeterminator Innmind\Homeostasis\Actuator\StrategyDeterminators::default: []
+
+    actionHistory Innmind\Homeostasis\ActionHistory\Filesystem:
+        - '$actionFilesystem'
+        - '$clock'
