@@ -15,46 +15,76 @@ In essence the process is always like this: `collect sensor values => determine 
 ## Usage
 
 ```php
+use Innmind\Homeostasis\{
+    Factor,
+    Factor\Cpu,
+    Factor\Log,
+    Sensor\Measure\Weight
+};
+use Innmind\Compose\{
+    ContainerBuilder\ContainerBuilder,
+    Loader\Yaml
+};
+use Innmind\Url\Path;
+use Innmind\Filesystem\Adapter;
+use Innmind\TimeContinuum\{
+    TimeContinuumInterface,
+    ElapsedPeriod
+};
+use Innmind\Immutable\{
+    Map,
+    Set
+};
+use Innmind\Server\Status\ServerFactory;
+use Innmind\Math\{
+    Polynom\Polynom,
+    Algebra\Integer
+    Algebra\Number\Number
+};
+use Psr\Log\LogLevel;
+use Innmind\TimeContinuum\{
+    TimeContinuum\Earth,
+    ElapsedPeriod
+};
+use Innmind\Filesystem\Adapter\FilesystemAdapter;
+
 $clock = new Earth;
-$regulate = new Regulator(
-    (new Set(Factor::class))
-        ->add(new Cpu(
-            $clock,
-            (new ServerFactory($clock))->make(),
-            new Weight(new Number(0.5)),
-            (new Polynom)->withDegree(new Integer(1), new Integer(1))
-        ))
-        ->add(new Log(
-            $clock,
-            new Synchronous(new Symfony($clock)),
-            new FilesystemAdapter('var/logs'),
-            new Weight(new Number(0.5)),
-            (new Polynom)->withDegree(new Integer(1), new Integer(1)),
-            static function(Log $line): bool {
-                return $line->attributes()->contains('level') &&
-                    $line->attributes()->get('level')->value() === LogLevel:CRITICAL;
-            },
-            'symfony'
-        )),
-    $states = new StateHistory(
-        new FilesystemAdapter('some/path/to/store/states'),
-        $clock
-    ),
-    $clock,
-    StrategyDeterminators::default(),
-    $actuator = /*you need to implement the Actuator interface*/
+$container = (new ContainerBuilder(new Yaml))(
+    new Path('container.yml'),
+    (new Map('string', 'mixed'))
+        ->put(
+            'factors',
+            Set::of(
+                Factor::class,
+                new Cpu(
+                    $clock,
+                    (new ServerFactory($clock))->make(),
+                    new Weight(new Number(0.5)),
+                    (new Polynom)->withDegree(new Integer(1), new Integer(1))
+                ),
+                new Log(
+                    $clock,
+                    new Synchronous(new Symfony($clock)),
+                    new FilesystemAdapter('var/logs'),
+                    new Weight(new Number(0.5)),
+                    (new Polynom)->withDegree(new Integer(1), new Integer(1)),
+                    static function(Log $line): bool {
+                        return $line->attributes()->contains('level') &&
+                            $line->attributes()->get('level')->value() === LogLevel:CRITICAL;
+                    },
+                    'symfony'
+                )
+            )
+        )
+        ->put('stateFilesystem', new FilesystemAdapter('some/path/to/store/states'))
+        ->put('actionFilesystem', new FilesystemAdapter('some/path/to/store/actions'))
+        ->put('clock', $clock)
+        ->put('actuator', /*you need to implement the Actuator interface*/)
+        ->put('maxHistory', new ElapsedPeriod(/*max history to keep*/))
+        ->put('minHistory', new ElapsedPeriod(/*min history to keep*/))
 );
-$regulate = new ModulateStateHistory(
-    $regulator,
-    new ActionHistory(
-        new FilesystemAdapter('some/path/to/store/actions'),
-        $clock
-    ),
-    $states,
-    $clock,
-    new ElapsedPeriod(/*max history to keep*/),
-    new ElapsedPeriod(/*min history to keep*/)
-);
+
+$regulate = $container->get('regulator');
 
 $regulate();
 ```
