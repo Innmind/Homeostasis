@@ -4,8 +4,8 @@ arguments:
     clock: Innmind\TimeContinuum\TimeContinuumInterface
     actuator: Innmind\Homeostasis\Actuator
     actionFilesystem: '?Innmind\Filesystem\Adapter'
-    maxHistory: '?Innmind\TimeContinuum\ElapsedPeriod'
-    minHistory: '?Innmind\TimeContinuum\ElapsedPeriod'
+    maxHistory: Innmind\TimeContinuum\ElapsedPeriod ?? $history.max
+    minHistory: Innmind\TimeContinuum\ElapsedPeriod ?? $history.min
     strategyDeterminator: Innmind\Homeostasis\Actuator\StrategyDeterminator ?? $strategyDeterminator
 
 expose:
@@ -48,3 +48,10 @@ services:
     actionHistory Innmind\Homeostasis\ActionHistory\Filesystem:
         - '$actionFilesystem'
         - '$clock'
+
+    history:
+        max Innmind\TimeContinuum\ElapsedPeriod:
+            - 86400000 # one day
+
+        min Innmind\TimeContinuum\ElapsedPeriod:
+            - 3600000 # one hour
