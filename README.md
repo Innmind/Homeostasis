@@ -15,26 +15,15 @@ In essence the process is always like this: `collect sensor values => determine 
 ## Usage
 
 ```php
+use function Innmind\Homeostasis\bootstrap;
 use Innmind\Homeostasis\{
     Factor,
     Factor\Cpu,
     Factor\Log,
     Sensor\Measure\Weight
 };
-use Innmind\Compose\{
-    ContainerBuilder\ContainerBuilder,
-    Loader\Yaml
-};
-use Innmind\Url\Path;
 use Innmind\Filesystem\Adapter;
-use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    ElapsedPeriod
-};
-use Innmind\Immutable\{
-    Map,
-    Set
-};
+use Innmind\Immutable\Set;
 use Innmind\Server\Status\ServerFactory;
 use Innmind\Math\{
     Polynom\Polynom,
@@ -42,49 +31,46 @@ use Innmind\Math\{
     Algebra\Number\Number
 };
 use Psr\Log\LogLevel;
-use Innmind\TimeContinuum\{
-    TimeContinuum\Earth,
-    ElapsedPeriod
-};
+use Innmind\TimeContinuum\TimeContinuum\Earth;
 use Innmind\Filesystem\Adapter\FilesystemAdapter;
 
 $clock = new Earth;
-$container = (new ContainerBuilder(new Yaml))(
-    new Path('container.yml'),
-    (new Map('string', 'mixed'))
-        ->put(
-            'factors',
-            Set::of(
-                Factor::class,
-                new Cpu(
-                    $clock,
-                    (new ServerFactory($clock))->make(),
-                    new Weight(new Number(0.5)),
-                    (new Polynom)->withDegree(new Integer(1), new Integer(1))
-                ),
-                new Log(
-                    $clock,
-                    new Synchronous(new Symfony($clock)),
-                    new FilesystemAdapter('var/logs'),
-                    new Weight(new Number(0.5)),
-                    (new Polynom)->withDegree(new Integer(1), new Integer(1)),
-                    static function(Log $line): bool {
-                        return $line->attributes()->contains('level') &&
-                            $line->attributes()->get('level')->value() === LogLevel:CRITICAL;
-                    },
-                    'symfony'
-                )
-            )
+$homeostasis = bootstrap(
+    Set::of(
+        Factor::class,
+        new Cpu(
+            $clock,
+            (new ServerFactory($clock))->make(),
+            new Weight(new Number(0.5)),
+            (new Polynom)->withDegree(new Integer(1), new Integer(1))
+        ),
+        new Log(
+            $clock,
+            new Synchronous(new Symfony($clock)),
+            new FilesystemAdapter('var/logs'),
+            new Weight(new Number(0.5)),
+            (new Polynom)->withDegree(new Integer(1), new Integer(1)),
+            static function(Log $line): bool {
+                return $line->attributes()->contains('level') &&
+                    $line->attributes()->get('level')->value() === LogLevel:CRITICAL;
+            },
+            'symfony'
         )
-        ->put('stateFilesystem', new FilesystemAdapter('some/path/to/store/states'))
-        ->put('actionFilesystem', new FilesystemAdapter('some/path/to/store/actions'))
-        ->put('clock', $clock)
-        ->put('actuator', /*you need to implement the Actuator interface*/)
-        ->put('maxHistory', new ElapsedPeriod(/*max history to keep*/))
-        ->put('minHistory', new ElapsedPeriod(/*min history to keep*/))
+    ),
+    /*you need to implement the Actuator interface*/,
+    new FilesystemAdapter('some/path/to/store/states'),
+    $clock
 );
 
-$regulate = $container->get('regulator');
+$modulateStateHistory = $homeostasis['modulate_state_history'](
+    new FilesystemAdapter('some/path/to/store/actions')
+);
+
+$regulate = $homeostasis['thread_safe'](
+    $modulateStateHistory(
+        $homeostasis['regulator']
+    )
+);
 
 $regulate();
 ```
