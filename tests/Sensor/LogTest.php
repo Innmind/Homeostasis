@@ -17,7 +17,7 @@ use Innmind\LogReader\{
     Reader,
     Log as LogLine,
     Reader\Synchronous,
-    Reader\LineParser\Symfony
+    Reader\LineParser\Monolog,
 };
 use Innmind\Filesystem\{
     Adapter,
@@ -52,7 +52,7 @@ class LogTest extends TestCase
     {
         $sensor = new Log(
             $clock = $this->createMock(TimeContinuumInterface::class),
-            new Synchronous(new Symfony($clock)),
+            new Synchronous(new Monolog($clock)),
             new FilesystemAdapter('fixtures/logs/'),
             $weight = new Weight(new Number(0.5)),
             (new Polynom)->withDegree(
@@ -81,7 +81,7 @@ class LogTest extends TestCase
     {
         $sensor = new Log(
             $clock = $this->createMock(TimeContinuumInterface::class),
-            new Synchronous(new Symfony($clock)),
+            new Synchronous(new Monolog($clock)),
             new MemoryAdapter,
             $weight = new Weight(new Number(0.5)),
             (new Polynom)->withDegree(
@@ -110,7 +110,7 @@ class LogTest extends TestCase
     {
         $sensor = new Log(
             $clock = $this->createMock(TimeContinuumInterface::class),
-            new Synchronous(new Symfony($clock)),
+            new Synchronous(new Monolog($clock)),
             new FilesystemAdapter('fixtures/logs/'),
             $weight = new Weight(new Number(0.5)),
             (new Polynom(new Integer(2)))->withDegree(
@@ -136,7 +136,7 @@ class LogTest extends TestCase
     {
         $sensor = new Log(
             $clock = $this->createMock(TimeContinuumInterface::class),
-            new Synchronous(new Symfony($clock)),
+            new Synchronous(new Monolog($clock)),
             new FilesystemAdapter('fixtures/logs/'),
             $weight = new Weight(new Number(0.5)),
             (new Polynom(new Integer(-2)))->withDegree(

@@ -27,7 +27,7 @@ use Innmind\Immutable\Stream;
 final class Log implements Sensor
 {
     private $clock;
-    private $reader;
+    private $read;
     private $directory;
     private $weight;
     private $health;
@@ -35,14 +35,14 @@ final class Log implements Sensor
 
     public function __construct(
         TimeContinuumInterface $clock,
-        Reader $reader,
+        Reader $read,
         Adapter $directory,
         Weight $weight,
         Polynom $health,
         callable $watch
     ) {
         $this->clock = $clock;
-        $this->reader = $reader;
+        $this->read = $read;
         $this->directory = $directory;
         $this->weight = $weight;
         $this->health = $health;
@@ -61,7 +61,7 @@ final class Log implements Sensor
                 new Stream(LogLine::class),
                 function(Stream $logs, string $name, File $file): Stream {
                     return $logs->append(
-                        $this->reader->parse($file)
+                        ($this->read)($file->content())
                     );
                 }
             );

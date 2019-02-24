@@ -20,7 +20,7 @@
         "innmind/time-continuum": "^1.0",
         "innmind/filesystem": "^3.0",
         "innmind/server-status": "^1.0",
-        "innmind/log-reader": "^2.0",
+        "innmind/log-reader": "^3.0",
         "symfony/filesystem": "^3.3|~4.0",
         "symfony/lock": "~3.4|~4.0"
     },
