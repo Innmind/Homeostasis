@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Tests\Innmind\Homeostasis\Math\Dataset;
 
-use Innmind\Homeostasis\Math\Dataset\Augment;
+use Innmind\Homeostasis\{
+    Math\Dataset\Augment,
+    Exception\AugmentAtLeastByOne,
+};
 use Innmind\Math\{
     Algebra\Integer,
     Regression\Dataset
@@ -12,11 +15,10 @@ use PHPUnit\Framework\TestCase;
 
 class AugmentTest extends TestCase
 {
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\AugmentAtLeastByOne
-     */
     public function testThrowWhenAugmentLessThanOne()
     {
+        $this->expectException(AugmentAtLeastByOne::class);
+
         new Augment(new Integer(0));
     }
 

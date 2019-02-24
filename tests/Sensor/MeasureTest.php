@@ -3,9 +3,10 @@ declare(strict_types = 1);
 
 namespace Tests\Innmind\Homeostasis\Sensor;
 
-use Innmind\Homeostasis\Sensor\{
-    Measure,
-    Measure\Weight
+use Innmind\Homeostasis\{
+    Sensor\Measure,
+    Sensor\Measure\Weight,
+    Exception\OutOfRangeMeasure,
 };
 use Innmind\Math\{
     Algebra\Number\Number,
@@ -39,11 +40,10 @@ class MeasureTest extends TestCase
         $this->assertSame($set, Measure::definitionSet());
     }
 
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\OutOfRangeMeasure
-     */
     public function testThrowWhenValueLowerThanSet()
     {
+        $this->expectException(OutOfRangeMeasure::class);
+
         new Measure(
             $this->createMock(PointInTimeInterface::class),
             new Number(-0.1),
@@ -51,11 +51,10 @@ class MeasureTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\OutOfRangeMeasure
-     */
     public function testThrowWhenValueHigherThanSet()
     {
+        $this->expectException(OutOfRangeMeasure::class);
+
         new Measure(
             $this->createMock(PointInTimeInterface::class),
             new Number(-0.1),

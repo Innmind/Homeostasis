@@ -16,7 +16,8 @@ use Innmind\TimeContinuum\{
 use Innmind\Server\Status\{
     Server,
     Server\Cpu as ServerCpu,
-    Server\Cpu\Percentage
+    Server\Cpu\Percentage,
+    Server\Cpu\Cores,
 };
 use Innmind\Math\{
     Polynom\Polynom,
@@ -61,7 +62,8 @@ class CpuTest extends TestCase
             ->willReturn(new ServerCpu(
                 new Percentage(42),
                 new Percentage(10),
-                new Percentage(48)
+                new Percentage(48),
+                new Cores(1)
             ));
 
         $measure = $sensor();
@@ -93,7 +95,8 @@ class CpuTest extends TestCase
             ->willReturn(new ServerCpu(
                 new Percentage(42),
                 new Percentage(10),
-                new Percentage(48)
+                new Percentage(48),
+                new Cores(1)
             ));
 
         $measure = $sensor();
@@ -122,7 +125,8 @@ class CpuTest extends TestCase
             ->willReturn(new ServerCpu(
                 new Percentage(42),
                 new Percentage(10),
-                new Percentage(48)
+                new Percentage(48),
+                new Cores(1)
             ));
 
         $measure = $sensor();
