@@ -6,7 +6,8 @@ namespace Tests\Innmind\Homeostasis;
 use Innmind\Homeostasis\{
     State,
     Sensor\Measure,
-    Sensor\Measure\Weight
+    Sensor\Measure\Weight,
+    Exception\SumOfWeightsMustBeOne,
 };
 use Innmind\TimeContinuum\PointInTimeInterface;
 use Innmind\Math\Algebra\Number;
@@ -50,35 +51,32 @@ class StateTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, Innmind\Homeostasis\Sensor\Measure>
-     */
     public function testThrowWhenInvalidMeasuresKeys()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, Innmind\Homeostasis\Sensor\Measure>');
+
         new State(
             $this->createMock(PointInTimeInterface::class),
             new Map('int', Measure::class)
         );
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 2 must be of type MapInterface<string, Innmind\Homeostasis\Sensor\Measure>
-     */
     public function testThrowWhenInvalidMeasuresValues()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 2 must be of type MapInterface<string, Innmind\Homeostasis\Sensor\Measure>');
+
         new State(
             $this->createMock(PointInTimeInterface::class),
             new Map('string', 'int')
         );
     }
 
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\SumOfWeightsMustBeOne
-     */
     public function testThrowWhenSumOfWeightsIsDifferentFromOne()
     {
+        $this->expectException(SumOfWeightsMustBeOne::class);
+
         new State(
             $this->createMock(PointInTimeInterface::class),
             (new Map('string', Measure::class))

@@ -6,7 +6,8 @@ namespace Tests\Innmind\Homeostasis\Regulator;
 use Innmind\Homeostasis\{
     Regulator\ThreadSafe,
     Regulator,
-    Strategy
+    Strategy,
+    Exception\HomeostasisAlreadyInProcess,
 };
 use Symfony\Component\Lock\{
     Factory,
@@ -18,7 +19,7 @@ class ThreadSafeTest extends TestCase
 {
     private $lock;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->lock = new Factory(new FlockStore);
     }
@@ -52,9 +53,6 @@ class ThreadSafeTest extends TestCase
         $this->assertTrue($lock->acquire());
     }
 
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\HomeostasisAlreadyInProcess
-     */
     public function testThrowWhenHomeostasisAlreadyInProcess()
     {
         $lock = $this->lock->createLock('homeostasis');
@@ -66,6 +64,8 @@ class ThreadSafeTest extends TestCase
         $inner
             ->expects($this->never())
             ->method('__invoke');
+
+        $this->expectException(HomeostasisAlreadyInProcess::class);
 
         $regulate();
     }

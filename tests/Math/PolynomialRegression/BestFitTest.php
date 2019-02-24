@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\Homeostasis\Math\PolynomialRegression;
 
-use Innmind\Homeostasis\Math\PolynomialRegression\BestFit;
+use Innmind\Homeostasis\{
+    Math\PolynomialRegression\BestFit,
+    Exception\BestFitNotDeterminable,
+};
 use Innmind\Math\{
     Regression\Dataset,
     Polynom\Polynom,
@@ -50,9 +53,6 @@ class BestFitTest extends TestCase
         $this->assertSame(-64.975065630889, $polynom->degree(6)->coeff()->value());
     }
 
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\BestFitNotDeterminable
-     */
     public function testThrowWhenBestFitNotDeterminable()
     {
         $fit = new BestFit(
@@ -61,6 +61,8 @@ class BestFitTest extends TestCase
                 [1, 1/3],
             ])
         );
+
+        $this->expectException(BestFitNotDeterminable::class);
 
         $fit(new Integer(5), new Integer(5));
     }

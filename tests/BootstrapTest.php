@@ -28,16 +28,16 @@ class BootstrapTest extends TestCase
         );
 
         $this->assertInstanceOf(Regulator\Regulator::class, $homeostasis['regulator']);
-        $this->assertInternalType('callable', $homeostasis['modulate_state_history']);
+        $this->assertIsCallable($homeostasis['modulate_state_history']);
         $modulateStateHistory = $homeostasis['modulate_state_history'](
             $this->createMock(Adapter::class)
         );
-        $this->assertInternalType('callable', $modulateStateHistory);
+        $this->assertIsCallable($modulateStateHistory);
         $this->assertInstanceOf(
             ModulateStateHistory::class,
             $modulateStateHistory($this->createMock(Regulator::class))
         );
-        $this->assertInternalType('callable', $homeostasis['thread_safe']);
+        $this->assertIsCallable($homeostasis['thread_safe']);
         $this->assertInstanceOf(
             ThreadSafe::class,
             $homeostasis['thread_safe']($this->createMock(Regulator::class))

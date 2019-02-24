@@ -9,7 +9,8 @@ use Innmind\Homeostasis\{
     Strategy,
     State,
     Sensor\Measure,
-    Sensor\Measure\Weight
+    Sensor\Measure\Weight,
+    Exception\StrategyNotDeterminable,
 };
 use Innmind\Math\{
     DefinitionSet\Set as DefinitionSet,
@@ -34,21 +35,19 @@ class SetTooShortTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 1 must be of type MapInterface<Innmind\Math\DefinitionSet\Set, Innmind\Homeostasis\Strategy>
-     */
     public function testThrowWhenInvalidMapKey()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<Innmind\Math\DefinitionSet\Set, Innmind\Homeostasis\Strategy>');
+
         new SetTooShort(new Map('string', Strategy::class));
     }
 
-    /**
-     * @expectedException TypeError
-     * @expectedExceptionMessage Argument 1 must be of type MapInterface<Innmind\Math\DefinitionSet\Set, Innmind\Homeostasis\Strategy>
-     */
     public function testThrowWhenInvalidMapValue()
     {
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<Innmind\Math\DefinitionSet\Set, Innmind\Homeostasis\Strategy>');
+
         new SetTooShort(new Map(DefinitionSet::class, 'string'));
     }
 
@@ -61,9 +60,6 @@ class SetTooShortTest extends TestCase
         $this->assertSame(Strategy::holdSteady(), $strategy);
     }
 
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\StrategyNotDeterminable
-     */
     public function testThrowWhenStatesTooLong()
     {
         $determinate = new SetTooShort(new Map(DefinitionSet::class, Strategy::class));
@@ -72,6 +68,8 @@ class SetTooShortTest extends TestCase
             ->expects($this->once())
             ->method('size')
             ->willReturn(5);
+
+        $this->expectException(StrategyNotDeterminable::class);
 
         $determinate($stream);
     }

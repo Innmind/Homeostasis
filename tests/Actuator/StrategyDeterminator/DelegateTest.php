@@ -9,7 +9,8 @@ use Innmind\Homeostasis\{
     Strategy,
     State,
     Exception\StrategyNotDeterminable,
-    Exception\RuntimeException
+    Exception\RuntimeException,
+    Exception\Exception,
 };
 use Innmind\Immutable\Stream;
 use PHPUnit\Framework\TestCase;
@@ -24,11 +25,10 @@ class DelegateTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\StrategyNotDeterminable
-     */
     public function testThrowByDefault()
     {
+        $this->expectException(StrategyNotDeterminable::class);
+
         (new Delegate)(new Stream(State::class));
     }
 
@@ -61,9 +61,6 @@ class DelegateTest extends TestCase
         $this->assertSame(Strategy::increase(), $strategy);
     }
 
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\Exception
-     */
     public function testNotAllExceptionsAreCaught()
     {
         $delegate = new Delegate(
@@ -77,6 +74,8 @@ class DelegateTest extends TestCase
                     new RuntimeException
                 )
             );
+
+        $this->expectException(Exception::class);
 
         $delegate(new Stream(State::class));
     }

@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Tests\Innmind\Homeostasis\Sensor\Measure;
 
-use Innmind\Homeostasis\Sensor\Measure\Weight;
+use Innmind\Homeostasis\{
+    Sensor\Measure\Weight,
+    Exception\OutOfRangeMeasureWeight,
+};
 use Innmind\Math\{
     Algebra\Number\Number,
     DefinitionSet\Set
@@ -29,19 +32,17 @@ class WeightTest extends TestCase
         $this->assertSame($set, Weight::definitionSet());
     }
 
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\OutOfRangeMeasureWeight
-     */
     public function testThrowWhenValueLowerThanSet()
     {
+        $this->expectException(OutOfRangeMeasureWeight::class);
+
         new Weight(new Number(-0.1));
     }
 
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\OutOfRangeMeasureWeight
-     */
     public function testThrowWhenValueHigherThanSet()
     {
+        $this->expectException(OutOfRangeMeasureWeight::class);
+
         new Weight(new Number(1.1));
     }
 }

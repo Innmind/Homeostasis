@@ -10,7 +10,8 @@ use Innmind\Homeostasis\{
     Math\Dataset\Augment,
     State,
     Sensor\Measure,
-    Sensor\Measure\Weight
+    Sensor\Measure\Weight,
+    Exception\StrategyNotDeterminable,
 };
 use Innmind\Math\{
     Algebra\Number\Number,
@@ -31,7 +32,7 @@ class WaterLaneTest extends TestCase
 {
     private $lane;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->lane = new WaterLane(
             Range::inclusive(new Number(0.4), new Number(0.6)),
@@ -178,12 +179,12 @@ class WaterLaneTest extends TestCase
         $this->assertSame(Strategy::increase(), $strategy);
     }
 
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\StrategyNotDeterminable
-     */
     public function testThrowWhenNotInLane()
     {
         $clock = new Earth;
+
+        $this->expectException(StrategyNotDeterminable::class);
+
         ($this->lane)(
             (new Stream(State::class))
                 ->add(
@@ -245,12 +246,12 @@ class WaterLaneTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Innmind\Homeostasis\Exception\StrategyNotDeterminable
-     */
     public function testThrowWhenCrossInLane()
     {
         $clock = new Earth;
+
+        $this->expectException(StrategyNotDeterminable::class);
+
         ($this->lane)(
             (new Stream(State::class))
                 ->add(
