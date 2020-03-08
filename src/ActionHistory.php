@@ -8,7 +8,7 @@ use Innmind\Immutable\Sequence;
 
 interface ActionHistory
 {
-    public function add(Action $action): self;
+    public function add(Action $action): void;
 
     /**
      * @return Sequence<Action>
@@ -18,5 +18,5 @@ interface ActionHistory
     /**
      * Remove all actions before the given date
      */
-    public function keepUp(PointInTime $time): self;
+    public function keepUp(PointInTime $time): void;
 }

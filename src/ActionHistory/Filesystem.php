@@ -37,7 +37,7 @@ final class Filesystem implements ActionHistory
         $this->clock = $clock;
     }
 
-    public function add(Action $action): ActionHistory
+    public function add(Action $action): void
     {
         $this->filesystem->add(
             File\File::named(
@@ -45,8 +45,6 @@ final class Filesystem implements ActionHistory
                 Stream::ofContent(json_encode($this->normalize($action)))
             )
         );
-
-        return $this;
     }
 
     /**
@@ -69,7 +67,7 @@ final class Filesystem implements ActionHistory
     /**
      * {@inheritdoc}
      */
-    public function keepUp(PointInTime $time): ActionHistory
+    public function keepUp(PointInTime $time): void
     {
         $this
             ->filesystem
@@ -81,8 +79,6 @@ final class Filesystem implements ActionHistory
                     $this->filesystem->remove($file->name());
                 }
             });
-
-        return $this;
     }
 
     /**

@@ -8,7 +8,7 @@ use Innmind\Immutable\Sequence;
 
 interface StateHistory
 {
-    public function add(State $state): self;
+    public function add(State $state): void;
 
     /**
      * @return Sequence<State>
@@ -18,5 +18,5 @@ interface StateHistory
     /**
      * Remove all states before the given date
      */
-    public function keepUp(PointInTime $time): self;
+    public function keepUp(PointInTime $time): void;
 }

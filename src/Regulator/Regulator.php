@@ -54,10 +54,8 @@ final class Regulator implements RegulatorInterface
 
     public function __invoke(): Strategy
     {
-        $states = $this
-            ->history
-            ->add($this->createState())
-            ->all();
+        $this->history->add($this->createState());
+        $states = $this->history->all();
 
         $strategy = ($this->strategyDeterminator)($states);
 

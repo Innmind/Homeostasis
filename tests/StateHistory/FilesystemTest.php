@@ -79,7 +79,7 @@ class FilesystemTest extends TestCase
                     ]);
             }));
 
-        $this->assertSame($history, $history->add($state));
+        $this->assertNull($history->add($state));
     }
 
     public function testAll()
@@ -201,6 +201,6 @@ class FilesystemTest extends TestCase
             ->method('remove')
             ->with(new Name(md5('foo')));
 
-        $this->assertSame($history, $history->keepUp($mark));
+        $this->assertNull($history->keepUp($mark));
     }
 }

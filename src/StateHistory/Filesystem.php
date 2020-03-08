@@ -39,7 +39,7 @@ final class Filesystem implements StateHistory
         $this->clock = $clock;
     }
 
-    public function add(State $state): StateHistory
+    public function add(State $state): void
     {
         $this->filesystem->add(
             File\File::named(
@@ -47,8 +47,6 @@ final class Filesystem implements StateHistory
                 Stream::ofContent(json_encode($this->normalize($state)))
             )
         );
-
-        return $this;
     }
 
     /**
@@ -71,7 +69,7 @@ final class Filesystem implements StateHistory
     /**
      * {@inheritdoc}
      */
-    public function keepUp(PointInTime $time): StateHistory
+    public function keepUp(PointInTime $time): void
     {
         $this
             ->filesystem
@@ -83,8 +81,6 @@ final class Filesystem implements StateHistory
                     $this->filesystem->remove($file->name());
                 }
             });
-
-        return $this;
     }
 
     private function normalize(State $state): array
