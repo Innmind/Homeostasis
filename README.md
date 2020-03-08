@@ -1,10 +1,8 @@
 # Homeostasis
 
-| `master` | `develop` |
-|----------|-----------|
-| [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Innmind/Homeostasis/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Innmind/Homeostasis/?branch=master) | [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Innmind/Homeostasis/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/Homeostasis/?branch=develop) |
-| [![Code Coverage](https://scrutinizer-ci.com/g/Innmind/Homeostasis/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Innmind/Homeostasis/?branch=master) | [![Code Coverage](https://scrutinizer-ci.com/g/Innmind/Homeostasis/badges/coverage.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/Homeostasis/?branch=develop) |
-| [![Build Status](https://scrutinizer-ci.com/g/Innmind/Homeostasis/badges/build.png?b=master)](https://scrutinizer-ci.com/g/Innmind/Homeostasis/build-status/master) | [![Build Status](https://scrutinizer-ci.com/g/Innmind/Homeostasis/badges/build.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/Homeostasis/build-status/develop) |
+[![Build Status](https://github.com/Innmind/Homeostasis/workflows/CI/badge.svg)](https://github.com/Innmind/Homeostasis/actions?query=workflow%3ACI)
+[![codecov](https://codecov.io/gh/Innmind/Homeostasis/branch/develop/graph/badge.svg)](https://codecov.io/gh/Innmind/Homeostasis)
+[![Type Coverage](https://shepherd.dev/github/Innmind/Homeostasis/coverage.svg)](https://shepherd.dev/github/Innmind/Homeostasis)
 
 This lib is a mechanism to collect indicators from various sensors of your app (cpu usage, errors in logs, ...) and determine what action to take depending on the health of the system. For example if the app takes too much cpu for too long you should reduce the number of processes handled by the server.
 
