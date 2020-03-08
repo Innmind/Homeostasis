@@ -1,10 +1,8 @@
 # Homeostasis
 
-| `master` | `develop` |
-|----------|-----------|
-| [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Innmind/Homeostasis/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Innmind/Homeostasis/?branch=master) | [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Innmind/Homeostasis/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/Homeostasis/?branch=develop) |
-| [![Code Coverage](https://scrutinizer-ci.com/g/Innmind/Homeostasis/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Innmind/Homeostasis/?branch=master) | [![Code Coverage](https://scrutinizer-ci.com/g/Innmind/Homeostasis/badges/coverage.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/Homeostasis/?branch=develop) |
-| [![Build Status](https://scrutinizer-ci.com/g/Innmind/Homeostasis/badges/build.png?b=master)](https://scrutinizer-ci.com/g/Innmind/Homeostasis/build-status/master) | [![Build Status](https://scrutinizer-ci.com/g/Innmind/Homeostasis/badges/build.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/Homeostasis/build-status/develop) |
+[![Build Status](https://github.com/Innmind/Homeostasis/workflows/CI/badge.svg)](https://github.com/Innmind/Homeostasis/actions?query=workflow%3ACI)
+[![codecov](https://codecov.io/gh/Innmind/Homeostasis/branch/develop/graph/badge.svg)](https://codecov.io/gh/Innmind/Homeostasis)
+[![Type Coverage](https://shepherd.dev/github/Innmind/Homeostasis/coverage.svg)](https://shepherd.dev/github/Innmind/Homeostasis)
 
 This lib is a mechanism to collect indicators from various sensors of your app (cpu usage, errors in logs, ...) and determine what action to take depending on the health of the system. For example if the app takes too much cpu for too long you should reduce the number of processes handled by the server.
 
@@ -20,56 +18,57 @@ use Innmind\Homeostasis\{
     Factor,
     Factor\Cpu,
     Factor\Log,
-    Sensor\Measure\Weight
+    Sensor\Measure\Weight,
 };
-use Innmind\Filesystem\Adapter;
-use Innmind\Immutable\Set;
-use Innmind\Server\Status\ServerFactory;
+use Innmind\OperatingSystem\Factory;
+use Innmind\Url\Path;
 use Innmind\Math\{
     Polynom\Polynom,
     Algebra\Integer
-    Algebra\Number\Number
+    Algebra\Number\Number,
 };
+use Innmind\LogReader\{
+    Reader\OnDemand,
+    Log as LogLine,
+};
+use Innmind\Immutable\Set;
 use Psr\Log\LogLevel;
-use Innmind\TimeContinuum\TimeContinuum\Earth;
-use Innmind\Filesystem\Adapter\FilesystemAdapter;
 
-$clock = new Earth;
+$os = Factory::build();
+$clock = $os->clock();
 $homeostasis = bootstrap(
     Set::of(
         Factor::class,
         new Cpu(
             $clock,
-            (new ServerFactory($clock))->make(),
+            $os->status(),
             new Weight(new Number(0.5)),
             (new Polynom)->withDegree(new Integer(1), new Integer(1))
         ),
         new Log(
             $clock,
-            new Synchronous(new Symfony($clock)),
-            new FilesystemAdapter('var/logs'),
+            new OnDemand(new Symfony($clock)),
+            $os->filesystem()->mount(Path::of('var/logs')),
             new Weight(new Number(0.5)),
             (new Polynom)->withDegree(new Integer(1), new Integer(1)),
-            static function(Log $line): bool {
+            static function(LogLine $line): bool {
                 return $line->attributes()->contains('level') &&
-                    $line->attributes()->get('level')->value() === LogLevel:CRITICAL;
+                    $line->attributes()->get('level')->value() === LogLevel::CRITICAL;
             },
-            'symfony'
-        )
+            'symfony',
+        ),
     ),
     /*you need to implement the Actuator interface*/,
-    new FilesystemAdapter('some/path/to/store/states'),
-    $clock
+    $os->filesystem()->mount(Path::of('some/path/to/store/states')),
+    $clock,
 );
 
 $modulateStateHistory = $homeostasis['modulate_state_history'](
-    new FilesystemAdapter('some/path/to/store/actions')
+    $os->filesystem()->mount(Path::of('some/path/to/store/actions')),
 );
 
-$regulate = $homeostasis['thread_safe'](
-    $modulateStateHistory(
-        $homeostasis['regulator']
-    )
+$regulate = $modulateStateHistory(
+    $homeostasis['regulator'],
 );
 
 $regulate();

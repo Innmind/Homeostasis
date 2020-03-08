@@ -10,8 +10,8 @@ use Innmind\Homeostasis\{
     Sensor\Measure\Weight
 };
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    PointInTimeInterface
+    Clock,
+    PointInTime,
 };
 use Innmind\Server\Status\{
     Server,
@@ -33,7 +33,7 @@ class CpuTest extends TestCase
         $this->assertInstanceOf(
             Sensor::class,
             new Cpu(
-                $this->createMock(TimeContinuumInterface::class),
+                $this->createMock(Clock::class),
                 $this->createMock(Server::class),
                 new Weight(new Number(0.5)),
                 new Polynom
@@ -44,7 +44,7 @@ class CpuTest extends TestCase
     public function testInvokation()
     {
         $sensor = new Cpu(
-            $clock = $this->createMock(TimeContinuumInterface::class),
+            $clock = $this->createMock(Clock::class),
             $server = $this->createMock(Server::class),
             $weight = new Weight(new Number(0.5)),
             (new Polynom)->withDegree(
@@ -55,7 +55,7 @@ class CpuTest extends TestCase
         $clock
             ->expects($this->once())
             ->method('now')
-            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($now = $this->createMock(PointInTime::class));
         $server
             ->expects($this->once())
             ->method('cpu')
@@ -77,7 +77,7 @@ class CpuTest extends TestCase
     public function testLimitUpperBound()
     {
         $sensor = new Cpu(
-            $clock = $this->createMock(TimeContinuumInterface::class),
+            $clock = $this->createMock(Clock::class),
             $server = $this->createMock(Server::class),
             $weight = new Weight(new Number(0.5)),
             (new Polynom(new Integer(2)))->withDegree(
@@ -88,7 +88,7 @@ class CpuTest extends TestCase
         $clock
             ->expects($this->once())
             ->method('now')
-            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($now = $this->createMock(PointInTime::class));
         $server
             ->expects($this->once())
             ->method('cpu')
@@ -107,7 +107,7 @@ class CpuTest extends TestCase
     public function testLimitLowerBound()
     {
         $sensor = new Cpu(
-            $clock = $this->createMock(TimeContinuumInterface::class),
+            $clock = $this->createMock(Clock::class),
             $server = $this->createMock(Server::class),
             $weight = new Weight(new Number(0.5)),
             (new Polynom(new Integer(-2)))->withDegree(
@@ -118,7 +118,7 @@ class CpuTest extends TestCase
         $clock
             ->expects($this->once())
             ->method('now')
-            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($now = $this->createMock(PointInTime::class));
         $server
             ->expects($this->once())
             ->method('cpu')

@@ -9,14 +9,13 @@ use Innmind\Homeostasis\{
     Sensor,
     Sensor\Measure\Weight
 };
-use Innmind\TimeContinuum\TimeContinuumInterface;
+use Innmind\TimeContinuum\Clock;
 use Innmind\LogReader\Reader;
 use Innmind\Filesystem\Adapter;
 use Innmind\Math\{
     Polynom\Polynom,
     Algebra\Number\Number
 };
-use Innmind\Immutable\Set;
 use PHPUnit\Framework\TestCase;
 
 class LogTest extends TestCase
@@ -26,7 +25,7 @@ class LogTest extends TestCase
         $this->assertInstanceOf(
             Factor::class,
             $factor = new Log(
-                $this->createMock(TimeContinuumInterface::class),
+                $this->createMock(Clock::class),
                 $this->createMock(Reader::class),
                 $this->createMock(Adapter::class),
                 new Weight(new Number(0.5)),

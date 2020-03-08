@@ -8,23 +8,24 @@ use Innmind\Homeostasis\{
     ActionHistory,
     StateHistory,
     Strategy,
-    Action
+    Action,
 };
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    PointInTimeInterface,
+    Clock,
+    PointInTime,
     ElapsedPeriod,
-    Period\Earth\Millisecond
+    Earth\Period\Millisecond,
 };
 use Innmind\Math\{
     Algebra\Number\Number,
     Algebra\Integer,
-    Statistics\Frequence
+    Statistics\Frequence,
 };
 use Innmind\Immutable\{
-    Stream,
-    Pair
+    Sequence,
+    Pair,
 };
+use function Innmind\Immutable\unwrap;
 
 /**
  * Reduce the state history when everything is globally stable in order to
@@ -34,19 +35,19 @@ use Innmind\Immutable\{
  */
 final class ModulateStateHistory implements Regulator
 {
-    private $regulate;
-    private $actions;
-    private $states;
-    private $clock;
-    private $maxHistory;
-    private $minHistory;
-    private $threshold;
+    private Regulator $regulate;
+    private ActionHistory $actions;
+    private StateHistory $states;
+    private Clock $clock;
+    private ElapsedPeriod $maxHistory;
+    private ElapsedPeriod $minHistory;
+    private Number $threshold;
 
     public function __construct(
         Regulator $regulator,
         ActionHistory $actions,
         StateHistory $states,
-        TimeContinuumInterface $clock,
+        Clock $clock,
         ElapsedPeriod $maxHistory,
         ElapsedPeriod $minHistory
     ) {
@@ -64,15 +65,15 @@ final class ModulateStateHistory implements Regulator
         $strategy = ($this->regulate)();
         $this->actions->add(new Action(
             $this->clock->now(),
-            $strategy
+            $strategy,
         ));
 
         $this->keepUp(
             $this->clock->now()->goBack(
                 new Millisecond(
-                    $this->maxHistory->milliseconds()
-                )
-            )
+                    $this->maxHistory->milliseconds(),
+                ),
+            ),
         );
         $this->modulate();
 
@@ -81,44 +82,46 @@ final class ModulateStateHistory implements Regulator
 
     private function modulate(): void
     {
+        /** @var Sequence<Pair<Integer, Action>> */
+        $variationPerAction = Sequence::of(Pair::class);
         $variations = $this
             ->actions
             ->all()
             ->reduce(
-                new Stream(Pair::class),
-                static function(Stream $variations, Action $action): Stream {
-                    if ($variations->size() === 0) {
-                        return $variations->add(new Pair(new Integer(0), $action));
+                $variationPerAction,
+                static function(Sequence $variations, Action $action): Sequence {
+                    /** @var Sequence<Pair<Integer, Action>> */
+                    $variations = $variations;
+
+                    if ($variations->empty()) {
+                        return ($variations)(new Pair(new Integer(0), $action));
                     }
 
-                    return $variations->add(new Pair(
+                    return ($variations)(new Pair(
                         $action->variation($variations->last()->value()),
-                        $action
+                        $action,
                     ));
-                }
+                },
             )
-            ->reduce(
-                new Stream(Integer::class),
-                static function(Stream $variations, Pair $action): Stream {
-                    return $variations->add(
-                        $action->key()
-                    );
-                }
+            ->mapTo(
+                Integer::class,
+                static fn(Pair $action): Integer => $action->key(),
             );
-        $frequence = new Frequence(...$variations);
+
+        $frequence = new Frequence(...unwrap($variations));
 
         if ($frequence(new Integer(0))->higherThan($this->threshold)) {
             $this->keepUp(
                 $this->clock->now()->goBack(
                     new Millisecond(
-                        $this->minHistory->milliseconds()
-                    )
-                )
+                        $this->minHistory->milliseconds(),
+                    ),
+                ),
             );
         }
     }
 
-    private function keepUp(PointInTimeInterface $time): void
+    private function keepUp(PointInTime $time): void
     {
         $this->actions->keepUp($time);
         $this->states->keepUp($time);

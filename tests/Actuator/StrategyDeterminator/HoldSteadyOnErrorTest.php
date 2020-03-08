@@ -10,7 +10,7 @@ use Innmind\Homeostasis\{
     State,
     Exception\RuntimeException
 };
-use Innmind\Immutable\Stream;
+use Innmind\Immutable\Sequence;
 use PHPUnit\Framework\TestCase;
 
 class HoldSteadyOnErrorTest extends TestCase
@@ -30,7 +30,7 @@ class HoldSteadyOnErrorTest extends TestCase
         $determine = new HoldSteadyOnError(
             $first = $this->createMock(StrategyDeterminator::class)
         );
-        $set = new Stream(State::class);
+        $set = Sequence::of(State::class);
         $first
             ->expects($this->once())
             ->method('__invoke')
@@ -56,7 +56,7 @@ class HoldSteadyOnErrorTest extends TestCase
                 )
             );
 
-        $strategy = $determine(new Stream(State::class));
+        $strategy = $determine(Sequence::of(State::class));
 
         $this->assertSame(Strategy::holdSteady(), $strategy);
     }

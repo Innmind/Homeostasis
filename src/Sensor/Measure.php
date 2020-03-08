@@ -5,26 +5,26 @@ namespace Innmind\Homeostasis\Sensor;
 
 use Innmind\Homeostasis\{
     Sensor\Measure\Weight,
-    Exception\OutOfRangeMeasure
+    Exception\OutOfRangeMeasure,
 };
-use Innmind\TimeContinuum\PointInTimeInterface;
+use Innmind\TimeContinuum\PointInTime;
 use Innmind\Math\{
     Algebra\Number,
     Algebra\Integer,
     DefinitionSet\Set,
-    DefinitionSet\Range
+    DefinitionSet\Range,
 };
 
 final class Measure
 {
-    private static $definitionSet;
+    private static ?Set $definitionSet = null;
 
-    private $time;
-    private $value;
-    private $weight;
+    private PointInTime $time;
+    private Number $value;
+    private Weight $weight;
 
     public function __construct(
-        PointInTimeInterface $time,
+        PointInTime $time,
         Number $value,
         Weight $weight
     ) {
@@ -37,7 +37,7 @@ final class Measure
         $this->weight = $weight;
     }
 
-    public function time(): PointInTimeInterface
+    public function time(): PointInTime
     {
         return $this->time;
     }
@@ -52,16 +52,16 @@ final class Measure
         return $this->weight;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
-        return (string) $this->value;
+        return $this->value->toString();
     }
 
     public static function definitionSet(): Set
     {
-        return self::$definitionSet ?? self::$definitionSet = Range::inclusive(
+        return self::$definitionSet ??= Range::inclusive(
             new Integer(0),
-            new Integer(1)
+            new Integer(1),
         );
     }
 }

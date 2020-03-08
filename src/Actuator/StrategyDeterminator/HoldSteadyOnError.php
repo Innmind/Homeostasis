@@ -6,23 +6,20 @@ namespace Innmind\Homeostasis\Actuator\StrategyDeterminator;
 use Innmind\Homeostasis\{
     Actuator\StrategyDeterminator,
     Exception\Exception,
-    Strategy
+    Strategy,
 };
-use Innmind\Immutable\StreamInterface;
+use Innmind\Immutable\Sequence;
 
 final class HoldSteadyOnError implements StrategyDeterminator
 {
-    private $determinate;
+    private StrategyDeterminator $determinate;
 
     public function __construct(StrategyDeterminator $determinator)
     {
         $this->determinate = $determinator;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(StreamInterface $states): Strategy
+    public function __invoke(Sequence $states): Strategy
     {
         try {
             return ($this->determinate)($states);

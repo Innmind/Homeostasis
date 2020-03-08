@@ -9,51 +9,54 @@ use Innmind\Homeostasis\{
 };
 use Innmind\Filesystem\Adapter;
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
+    Clock,
     ElapsedPeriod,
+    Earth,
 };
-use Innmind\Immutable\SetInterface;
+use Innmind\Immutable\Set;
 
+/**
+ * @param Set<Factor> $factors
+ *
+ * @return array{regulator: Regulator, modulate_state_history: callable(Adapter, ElapsedPeriod = null, ElapsedPeriod = null): (callable(Regulator): Regulator)}
+ */
 function bootstrap(
-    SetInterface $factors,
+    Set $factors,
     Actuator $actuator,
     Adapter $stateFilesystem,
-    TimeContinuumInterface $clock,
+    Clock $clock,
     StrategyDeterminator $determinator = null
 ): array {
-    $determinator = $determinator ?? StrategyDeterminators::default();
+    $determinator ??= StrategyDeterminators::default();
 
     return [
         'regulator' => new Regulator\Regulator(
             $factors,
             $stateHistory = new StateHistory\Filesystem(
                 $stateFilesystem,
-                $clock
+                $clock,
             ),
             $clock,
             $determinator,
-            $actuator
+            $actuator,
         ),
         'modulate_state_history' => static function(Adapter $filesystem, ElapsedPeriod $max = null, ElapsedPeriod $min = null) use ($clock, $stateHistory): callable {
-            $max = $max ?? new ElapsedPeriod(86400000); // one day
-            $min = $min ?? new ElapsedPeriod(3600000); // one hour
+            $max ??= new Earth\ElapsedPeriod(86400000); // one day
+            $min ??= new Earth\ElapsedPeriod(3600000); // one hour
 
             return static function(Regulator $regulator) use ($clock, $stateHistory, $filesystem, $max, $min): Regulator {
                 return new Regulator\ModulateStateHistory(
                     $regulator,
                     new ActionHistory\Filesystem(
                         $filesystem,
-                        $clock
+                        $clock,
                     ),
                     $stateHistory,
                     $clock,
                     $max,
-                    $min
+                    $min,
                 );
             };
-        },
-        'thread_safe' => static function(Regulator $regulator): Regulator {
-            return new Regulator\ThreadSafe($regulator);
         },
     ];
 }

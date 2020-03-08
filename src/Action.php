@@ -3,7 +3,8 @@ declare(strict_types = 1);
 
 namespace Innmind\Homeostasis;
 
-use Innmind\TimeContinuum\PointInTimeInterface;
+use Innmind\Homeostasis\Exception\LogicException;
+use Innmind\TimeContinuum\PointInTime;
 use Innmind\Math\Algebra\Integer;
 
 /**
@@ -11,18 +12,18 @@ use Innmind\Math\Algebra\Integer;
  */
 final class Action
 {
-    private $time;
-    private $strategy;
+    private PointInTime $time;
+    private Strategy $strategy;
 
     public function __construct(
-        PointInTimeInterface $time,
+        PointInTime $time,
         Strategy $strategy
     ) {
         $this->time = $time;
         $this->strategy = $strategy;
     }
 
-    public function time(): PointInTimeInterface
+    public function time(): PointInTime
     {
         return $this->time;
     }
@@ -35,7 +36,7 @@ final class Action
     public function variation(self $previous): Integer
     {
         return new Integer(
-            $this->weight() <=> $previous->weight()
+            $this->weight() <=> $previous->weight(),
         );
     }
 
@@ -52,6 +53,9 @@ final class Action
 
             case Strategy::dramaticIncrease():
                 return 0;
+
+            default:
+                throw new LogicException($this->strategy->toString());
         }
     }
 }

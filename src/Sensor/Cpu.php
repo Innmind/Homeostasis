@@ -5,25 +5,25 @@ namespace Innmind\Homeostasis\Sensor;
 
 use Innmind\Homeostasis\{
     Sensor,
-    Sensor\Measure\Weight
+    Sensor\Measure\Weight,
 };
-use Innmind\TimeContinuum\TimeContinuumInterface;
+use Innmind\TimeContinuum\Clock;
 use Innmind\Server\Status\Server;
 use Innmind\Math\{
     Polynom\Polynom,
     Algebra\Number\Number,
-    Algebra\Integer
+    Algebra\Integer,
 };
 
 final class Cpu implements Sensor
 {
-    private $clock;
-    private $server;
-    private $weight;
-    private $health;
+    private Clock $clock;
+    private Server $server;
+    private Weight $weight;
+    private Polynom $health;
 
     public function __construct(
-        TimeContinuumInterface $clock,
+        Clock $clock,
         Server $server,
         Weight $weight,
         Polynom $health
@@ -52,7 +52,7 @@ final class Cpu implements Sensor
         return new Measure(
             $this->clock->now(),
             $health,
-            $this->weight
+            $this->weight,
         );
     }
 }

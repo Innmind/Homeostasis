@@ -6,43 +6,49 @@ namespace Innmind\Homeostasis\Math\Dataset;
 use Innmind\Homeostasis\State;
 use Innmind\Math\Regression\Dataset;
 use Innmind\Immutable\{
-    StreamInterface,
-    Stream,
-    Pair
+    Sequence,
+    Pair,
 };
 
 final class TimeSensitive
 {
     /**
-     * @param StreamInterface<State> $states
+     * @param Sequence<State> $states
      */
-    public function __invoke(StreamInterface $states): Dataset
+    public function __invoke(Sequence $states): Dataset
     {
+        /** @var Sequence<Pair<int, State>> */
         $points = $states->reduce(
-            new Stream(Pair::class),
-            static function(Stream $points, State $state): Stream {
+            Sequence::of(Pair::class),
+            static function(Sequence $points, State $state): Sequence {
+                /** @var Sequence<Pair<int, State>> */
+                $points = $points;
+
                 $key = 0;
 
-                if ($points->size() > 0) {
+                if (!$points->empty()) {
                     $key = $state
                         ->time()
                         ->elapsedSince(
                             $points->first()->value()->time()
                         )
                         ->milliseconds();
-
                 }
-                return $points->add(
-                    new Pair($key, $state)
-                );
-            }
+
+                return ($points)(new Pair($key, $state));
+            },
         );
+
         $previous = $points->first()->key();
         $lowestGap = $points
             ->drop(1)
             ->reduce(
-                INF,
+                \INF,
                 static function(float $lowest, Pair $point) use (&$previous): float {
+                    /**
+                     * @psalm-suppress MixedOperand
+                     * @var int
+                     */
                     $delta = $point->key() - $previous;
                     $previous = $point->key();
 
@@ -51,14 +57,18 @@ final class TimeSensitive
                     }
 
                     return $lowest;
-                }
+                },
             );
 
+        /**
+         * @psalm-suppress InvalidScalarArgument Typewise the map() is wrong but Sequence doesn't verify types in Pair
+         * @var list<array{0: float, 1: int|float}>
+         */
         $points = $points
             ->map(static function(Pair $point) use ($lowestGap): Pair {
                 return new Pair(
                     $point->key() / $lowestGap,
-                    $point->value()
+                    $point->value(),
                 );
             })
             ->reduce(
@@ -67,9 +77,9 @@ final class TimeSensitive
                     $points[] = [$point->key(), $point->value()->value()];
 
                     return $points;
-                }
+                },
             );
 
-        return Dataset::fromArray($points);
+        return Dataset::of($points);
     }
 }

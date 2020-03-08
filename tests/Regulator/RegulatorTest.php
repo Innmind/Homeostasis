@@ -17,13 +17,13 @@ use Innmind\Homeostasis\{
     Strategy
 };
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    PointInTimeInterface
+    Clock,
+    PointInTime,
 };
 use Innmind\Math\Algebra\Number\Number;
 use Innmind\Immutable\{
     Set,
-    Stream
+    Sequence,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -34,9 +34,9 @@ class RegulatorTest extends TestCase
         $this->assertInstanceOf(
             RegulatorInterface::class,
             new Regulator(
-                new Set(Factor::class),
+                Set::of(Factor::class),
                 $this->createMock(StateHistory::class),
-                $this->createMock(TimeContinuumInterface::class),
+                $this->createMock(Clock::class),
                 $this->createMock(StrategyDeterminator::class),
                 $this->createMock(Actuator::class)
             )
@@ -46,10 +46,9 @@ class RegulatorTest extends TestCase
     public function testInvokation()
     {
         $regulate = new Regulator(
-            (new Set(Factor::class))
-                ->add($factor = $this->createMock(Factor::class)),
+            Set::of(Factor::class, $factor = $this->createMock(Factor::class)),
             $history = $this->createMock(StateHistory::class),
-            $clock = $this->createMock(TimeContinuumInterface::class),
+            $clock = $this->createMock(Clock::class),
             $determinator = $this->createMock(StrategyDeterminator::class),
             $actuator = $this->createMock(Actuator::class)
         );
@@ -67,7 +66,7 @@ class RegulatorTest extends TestCase
             ->method('__invoke')
             ->willReturn(
                 $measure = new Measure(
-                    $this->createMock(PointInTimeInterface::class),
+                    $this->createMock(PointInTime::class),
                     new Number(0.5),
                     new Weight(new Number(1))
                 )
@@ -75,7 +74,7 @@ class RegulatorTest extends TestCase
         $clock
             ->expects($this->once())
             ->method('now')
-            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($now = $this->createMock(PointInTime::class));
         $history
             ->expects($this->once())
             ->method('add')
@@ -90,22 +89,22 @@ class RegulatorTest extends TestCase
             ->expects($this->once())
             ->method('all')
             ->will($this->returnCallback(function() use (&$built) {
-                return (new Stream(State::class))->add($built);
+                return Sequence::of(State::class, $built);
             }));
         $determinator
             ->expects($this->once())
             ->method('__invoke')
-            ->with($this->callback(function(Stream $stream) use (&$built) {
+            ->with($this->callback(function(Sequence $stream) use (&$built) {
                 return $stream->size() === 1 &&
-                    $stream->current() === $built;
+                    $stream->first() === $built;
             }))
             ->willReturn(Strategy::increase());
         $actuator
             ->expects($this->once())
             ->method('increase')
-            ->with($this->callback(function(Stream $stream) use (&$built) {
+            ->with($this->callback(function(Sequence $stream) use (&$built) {
                 return $stream->size() === 1 &&
-                    $stream->current() === $built;
+                    $stream->first() === $built;
             }));
 
         $this->assertSame(Strategy::increase(), $regulate());

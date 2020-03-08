@@ -10,19 +10,19 @@ use Innmind\Homeostasis\{
     Actuator\StrategyDeterminator\WaterLane,
     Actuator\StrategyDeterminator\CrossLane,
     Actuator\StrategyDeterminator\HoldSteadyOnError,
-    Math\Dataset\Augment
+    Math\Dataset\Augment,
 };
 use Innmind\Math\{
     DefinitionSet\Range,
     DefinitionSet\Set,
     Algebra\Number\Number,
-    Algebra\Integer
+    Algebra\Integer,
 };
 use Innmind\Immutable\Map;
 
 final class StrategyDeterminators
 {
-    private static $default;
+    private static ?StrategyDeterminator $default = null;
 
     public static function default(): StrategyDeterminator
     {
@@ -37,46 +37,48 @@ final class StrategyDeterminators
         $veryLow = new Range(true, new Number(0), new Number(0.2), false); // [0;0.2[
         $predict = new Augment(new Integer(1));
 
+        /** @var Map<Set, Strategy> */
+        $strategies = Map::of(Set::class, Strategy::class);
         $delegate = new Delegate(
             new SetTooShort(
-                (new Map(Set::class, Strategy::class))
-                    ->put($veryHigh, Strategy::dramaticDecrease())
-                    ->put($high, Strategy::decrease())
-                    ->put($mid, Strategy::holdSteady())
-                    ->put($low, Strategy::increase())
-                    ->put($veryLow, Strategy::dramaticIncrease())
+                $strategies
+                    ($veryHigh, Strategy::dramaticDecrease())
+                    ($high, Strategy::decrease())
+                    ($mid, Strategy::holdSteady())
+                    ($low, Strategy::increase())
+                    ($veryLow, Strategy::dramaticIncrease()),
             ),
             new WaterLane(
                 $veryHigh,
                 $predict,
                 Strategy::dramaticDecrease(),
-                Strategy::decrease()
+                Strategy::decrease(),
             ),
             new WaterLane(
                 $high,
                 $predict,
                 Strategy::decrease(),
-                Strategy::holdSteady()
+                Strategy::holdSteady(),
             ),
             new WaterLane(
                 $mid,
                 $predict,
                 Strategy::holdSteady(),
-                Strategy::holdSteady()
+                Strategy::holdSteady(),
             ),
             new WaterLane(
                 $low,
                 $predict,
                 Strategy::increase(),
-                Strategy::holdSteady()
+                Strategy::holdSteady(),
             ),
             new WaterLane(
                 $veryLow,
                 $predict,
                 Strategy::increase(),
-                Strategy::dramaticIncrease()
+                Strategy::dramaticIncrease(),
             ),
-            new CrossLane($predict)
+            new CrossLane($predict),
         );
 
         return self::$default = new HoldSteadyOnError($delegate);

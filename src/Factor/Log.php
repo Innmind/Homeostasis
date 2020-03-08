@@ -7,20 +7,26 @@ use Innmind\Homeostasis\{
     Factor,
     Sensor,
     Sensor\Log as LogSensor,
-    Sensor\Measure\Weight
+    Sensor\Measure\Weight,
 };
-use Innmind\TimeContinuum\TimeContinuumInterface;
-use Innmind\LogReader\Reader;
+use Innmind\TimeContinuum\Clock;
+use Innmind\LogReader\{
+    Reader,
+    Log as LogLine,
+};
 use Innmind\Filesystem\Adapter;
 use Innmind\Math\Polynom\Polynom;
 
 final class Log implements Factor
 {
-    private $sensor;
-    private $name;
+    private LogSensor $sensor;
+    private string $name;
 
+    /**
+     * @param callable(LogLine): bool $watch
+     */
     public function __construct(
-        TimeContinuumInterface $clock,
+        Clock $clock,
         Reader $reader,
         Adapter $directory,
         Weight $weight,
@@ -34,7 +40,7 @@ final class Log implements Factor
             $directory,
             $weight,
             $health,
-            $watch
+            $watch,
         );
         $this->name = 'log_'.$name;
     }

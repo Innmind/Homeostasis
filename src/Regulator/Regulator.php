@@ -11,35 +11,35 @@ use Innmind\Homeostasis\{
     State,
     Sensor\Measure,
     Actuator,
-    Actuator\StrategyDeterminator
+    Actuator\StrategyDeterminator,
 };
-use Innmind\TimeContinuum\TimeContinuumInterface;
+use Innmind\TimeContinuum\Clock;
 use Innmind\Immutable\{
-    SetInterface,
-    Map
+    Set,
+    Map,
 };
+use function Innmind\Immutable\assertSet;
 
 final class Regulator implements RegulatorInterface
 {
-    private $factors;
-    private $history;
-    private $clock;
-    private $strategyDeterminator;
-    private $actuator;
+    /** @var Set<Factor> */
+    private Set $factors;
+    private StateHistory $history;
+    private Clock $clock;
+    private StrategyDeterminator $strategyDeterminator;
+    private Actuator $actuator;
 
+    /**
+     * @param Set<Factor> $factors
+     */
     public function __construct(
-        SetInterface $factors,
+        Set $factors,
         StateHistory $history,
-        TimeContinuumInterface $clock,
+        Clock $clock,
         StrategyDeterminator $strategyDeterminator,
         Actuator $actuator
     ) {
-        if ((string) $factors->type() !== Factor::class) {
-            throw new \TypeError(sprintf(
-                'Argument 1 must be of type SetInterface<%s>',
-                Factor::class
-            ));
-        }
+        assertSet(Factor::class, $factors, 1);
 
         $this->factors = $factors;
         $this->history = $history;
@@ -50,31 +50,27 @@ final class Regulator implements RegulatorInterface
 
     public function __invoke(): Strategy
     {
-        $states = $this
-            ->history
-            ->add($this->createState())
-            ->all();
+        $this->history->add($this->createState());
+        $states = $this->history->all();
 
         $strategy = ($this->strategyDeterminator)($states);
 
-        $this->actuator->{(string) $strategy}($states);
+        $this->actuator->{$strategy->toString()}($states);
 
         return $strategy;
     }
 
     private function createState(): State
     {
-        return new State(
-            $this->clock->now(),
-            $this->factors->reduce(
-                new Map('string', Measure::class),
-                static function(Map $measures, Factor $factor): Map {
-                    return $measures->put(
-                        $factor->name(),
-                        $factor->sensor()()
-                    );
-                }
-            )
+        /** @var Map<string, Measure> */
+        $measures = $this->factors->toMapOf(
+            'string',
+            Measure::class,
+            static function(Factor $factor): \Generator {
+                yield $factor->name() => $factor->sensor()();
+            },
         );
+
+        return new State($this->clock->now(), $measures);
     }
 }

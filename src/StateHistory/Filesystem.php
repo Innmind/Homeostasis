@@ -8,91 +8,72 @@ use Innmind\Homeostasis\{
     State,
     Sensor\Measure,
     Sensor\Measure\Weight,
-    TimeContinuum\Format\ISO8601WithMilliseconds
+    TimeContinuum\Format\ISO8601WithMilliseconds,
 };
 use Innmind\Filesystem\{
     Adapter,
     File,
-    Stream\StringStream
 };
+use Innmind\Stream\Readable\Stream;
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    PointInTimeInterface
+    Clock,
+    PointInTime,
 };
 use Innmind\Math\Algebra\Number\Number;
+use Innmind\Json\Json;
 use Innmind\Immutable\{
-    StreamInterface,
+    Sequence,
     Set,
-    Map
+    Map,
 };
 
 final class Filesystem implements StateHistory
 {
-    private $filesystem;
-    private $clock;
+    private Adapter $filesystem;
+    private Clock $clock;
 
-    public function __construct(
-        Adapter $filesystem,
-        TimeContinuumInterface $clock
-    ) {
+    public function __construct(Adapter $filesystem, Clock $clock)
+    {
         $this->filesystem = $filesystem;
         $this->clock = $clock;
     }
 
-    public function add(State $state): StateHistory
+    public function add(State $state): void
     {
         $this->filesystem->add(
-            new File\File(
+            File\File::named(
                 $this->name($state->time()),
-                new StringStream(json_encode($this->normalize($state)))
-            )
+                Stream::ofContent(Json::encode($this->normalize($state))),
+            ),
         );
-
-        return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function all(): StreamInterface
+    public function all(): Sequence
     {
         return $this
             ->filesystem
             ->all()
-            ->reduce(
-                new Set(State::class),
-                function(Set $states, string $name, File $file): Set {
-                    return $states->add(
-                        $this->denormalize(
-                            json_decode((string) $file->content(), true)
-                        )
-                    );
-                }
+            ->mapTo(
+                State::class,
+                fn(File $file): State => $this->denormalize($file),
             )
-            ->sort(static function(State $a, State $b): bool {
-                return $a->time()->aheadOf($b->time());
+            ->sort(static function(State $a, State $b): int {
+                return (int) $a->time()->aheadOf($b->time());
             });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function keepUp(PointInTimeInterface $time): StateHistory
+    public function keepUp(PointInTime $time): void
     {
         $this
             ->filesystem
             ->all()
-            ->foreach(function(string $name, File $file) use ($time): void {
-                $state = $this->denormalize(
-                    json_decode((string) $file->content(), true)
-                );
+            ->foreach(function(File $file) use ($time): void {
+                $state = $this->denormalize($file);
 
                 if ($time->aheadOf($state->time())) {
-                    $this->filesystem->remove($name);
+                    $this->filesystem->remove($file->name());
                 }
             });
-
-        return $this;
     }
 
     private function normalize(State $state): array
@@ -105,24 +86,30 @@ final class Filesystem implements StateHistory
                     $measures[$factor] = $this->normalizeMeasure($measure);
 
                     return $measures;
-                }
+                },
             ),
         ];
     }
 
-    private function denormalize(array $data): State
+    private function denormalize(File $file): State
     {
+        /** @var array{time: string, measures: array<string, array{time: string, value: int|float, weight: int|float}>} */
+        $data = Json::decode($file->content()->toString());
+
         return new State(
             $this->clock->at($data['time']),
-            $this->denormalizeMeasures($data['measures'])
+            $this->denormalizeMeasures($data['measures']),
         );
     }
 
-    private function name(PointInTimeInterface $time): string
+    private function name(PointInTime $time): string
     {
-        return md5($time->format(new ISO8601WithMilliseconds));
+        return \md5($time->format(new ISO8601WithMilliseconds));
     }
 
+    /**
+     * @return array{time: string, value: int|float, weight: int|float}
+     */
     private function normalizeMeasure(Measure $measure): array
     {
         return [
@@ -132,18 +119,24 @@ final class Filesystem implements StateHistory
         ];
     }
 
+    /**
+     * @param array<string, array{time: string, value: int|float, weight: int|float}> $data
+     *
+     * @return Map<string, Measure>
+     */
     private function denormalizeMeasures(array $data): Map
     {
-        $map = new Map('string', Measure::class);
+        /** @var Map<string, Measure> */
+        $map = Map::of('string', Measure::class);
 
         foreach ($data as $factor => $measure) {
-            $map = $map->put(
+            $map = ($map)(
                 $factor,
                 new Measure(
                     $this->clock->at($measure['time']),
                     new Number($measure['value']),
-                    new Weight(new Number($measure['weight']))
-                )
+                    new Weight(new Number($measure['weight'])),
+                ),
             );
         }
 

@@ -5,16 +5,16 @@ namespace Innmind\Homeostasis\Math\Dataset;
 
 use Innmind\Homeostasis\{
     Math\PolynomialRegression\BestFit,
-    Exception\AugmentAtLeastByOne
+    Exception\AugmentAtLeastByOne,
 };
 use Innmind\Math\{
     Algebra\Integer,
-    Regression\Dataset
+    Regression\Dataset,
 };
 
 final class Augment
 {
-    private $predict;
+    private Integer $predict;
 
     public function __construct(Integer $predict)
     {
@@ -29,14 +29,14 @@ final class Augment
     {
         $polynom = (new BestFit($dataset))(
             new Integer(1),
-            $dataset->abscissas()->dimension()->decrement()
+            $dataset->abscissas()->dimension()->decrement(),
         );
 
         $abscissas = $dataset->abscissas();
         $dimension = $abscissas->dimension()->value();
         $last = $abscissas->get($dimension - 1);
         $delta = $last->subtract(
-            $abscissas->get($dimension - 2)
+            $abscissas->get($dimension - 2),
         );
         $x = $last;
         $predicted = new Integer(0);
@@ -44,9 +44,10 @@ final class Augment
         do {
             $x = $x->add($delta);
             $estimation = $polynom($x);
+            /** @var list<array{0: int|float, 1: int|float}> */
             $dataset = $dataset->toArray();
             $dataset[] = [$x, $estimation];
-            $dataset = Dataset::fromArray($dataset);
+            $dataset = Dataset::of($dataset);
 
             $predicted = $predicted->increment();
         } while ($this->predict->higherThan($predicted));

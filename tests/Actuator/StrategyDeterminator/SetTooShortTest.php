@@ -17,11 +17,11 @@ use Innmind\Math\{
     DefinitionSet\Range,
     Algebra\Number\Number
 };
-use Innmind\TimeContinuum\PointInTimeInterface;
+use Innmind\TimeContinuum\PointInTime;
 use Innmind\Immutable\{
     Map,
     Stream,
-    StreamInterface
+    Sequence
 };
 use PHPUnit\Framework\TestCase;
 
@@ -31,47 +31,55 @@ class SetTooShortTest extends TestCase
     {
         $this->assertInstanceOf(
             StrategyDeterminator::class,
-            new SetTooShort(new Map(DefinitionSet::class, Strategy::class))
+            new SetTooShort(Map::of(DefinitionSet::class, Strategy::class))
         );
     }
 
     public function testThrowWhenInvalidMapKey()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<Innmind\Math\DefinitionSet\Set, Innmind\Homeostasis\Strategy>');
+        $this->expectExceptionMessage('Argument 1 must be of type Map<Innmind\Math\DefinitionSet\Set, Innmind\Homeostasis\Strategy>');
 
-        new SetTooShort(new Map('string', Strategy::class));
+        new SetTooShort(Map::of('string', Strategy::class));
     }
 
     public function testThrowWhenInvalidMapValue()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 1 must be of type MapInterface<Innmind\Math\DefinitionSet\Set, Innmind\Homeostasis\Strategy>');
+        $this->expectExceptionMessage('Argument 1 must be of type Map<Innmind\Math\DefinitionSet\Set, Innmind\Homeostasis\Strategy>');
 
-        new SetTooShort(new Map(DefinitionSet::class, 'string'));
+        new SetTooShort(Map::of(DefinitionSet::class, 'string'));
     }
 
     public function testDefaultStrategy()
     {
-        $determinate = new SetTooShort(new Map(DefinitionSet::class, Strategy::class));
+        $determinate = new SetTooShort(Map::of(DefinitionSet::class, Strategy::class));
 
-        $strategy = $determinate(new Stream(State::class));
+        $strategy = $determinate(Sequence::of(State::class));
 
         $this->assertSame(Strategy::holdSteady(), $strategy);
     }
 
     public function testThrowWhenStatesTooLong()
     {
-        $determinate = new SetTooShort(new Map(DefinitionSet::class, Strategy::class));
-        $stream = $this->createMock(StreamInterface::class);
-        $stream
-            ->expects($this->once())
-            ->method('size')
-            ->willReturn(5);
+        $determinate = new SetTooShort(Map::of(DefinitionSet::class, Strategy::class));
+        $state = new State(
+            $this->createMock(PointInTime::class),
+            Map::of('string', Measure::class)
+                (
+                    'cpu',
+                    new Measure(
+                        $this->createMock(PointInTime::class),
+                        new Number(1),
+                        new Weight(new Number(1))
+                    )
+                )
+        );
+        $states = Sequence::of(State::class, $state, $state, $state, $state, $state);
 
         $this->expectException(StrategyNotDeterminable::class);
 
-        $determinate($stream);
+        $determinate($states);
     }
 
     /**
@@ -80,31 +88,31 @@ class SetTooShortTest extends TestCase
     public function testStrategy($expected, $state)
     {
         $determinate = new SetTooShort(
-            (new Map(DefinitionSet::class, Strategy::class))
-                ->put(
+            Map::of(DefinitionSet::class, Strategy::class)
+                (
                     new Range(true, new Number(0), new Number(0.2), false),
                     Strategy::dramaticIncrease()
                 )
-                ->put(
+                (
                     new Range(true, new Number(0.2), new Number(0.4), false),
                     Strategy::increase()
                 )
-                ->put(
+                (
                     new Range(true, new Number(0.4), new Number(0.6), true),
                     Strategy::holdSteady()
                 )
-                ->put(
+                (
                     new Range(false, new Number(0.6), new Number(0.8), true),
                     Strategy::decrease()
                 )
-                ->put(
+                (
                     new Range(false, new Number(0.8), new Number(1), true),
                     Strategy::dramaticDecrease()
                 )
         );
 
         $strategy = $determinate(
-            (new Stream(State::class))->add($state)
+            Sequence::of(State::class, $state)
         );
 
         $this->assertSame($expected, $strategy);
@@ -122,12 +130,12 @@ class SetTooShortTest extends TestCase
 
         foreach ($values as &$value) {
             $value[1] = new State(
-                $this->createMock(PointInTimeInterface::class),
-                (new Map('string', Measure::class))
-                    ->put(
+                $this->createMock(PointInTime::class),
+                Map::of('string', Measure::class)
+                    (
                         'cpu',
                         new Measure(
-                            $this->createMock(PointInTimeInterface::class),
+                            $this->createMock(PointInTime::class),
                             new Number($value[1]),
                             new Weight(new Number(1))
                         )

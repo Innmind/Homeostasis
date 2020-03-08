@@ -7,34 +7,31 @@ use Innmind\Homeostasis\{
     Actuator\StrategyDeterminator,
     Math\Dataset\Augment,
     Math\Dataset\TimeSensitive,
-    Strategy
+    Strategy,
 };
 use Innmind\Math\{
     Algebra\Integer,
     Algebra\Number,
     DefinitionSet\Range,
-    Regression\LinearRegression
+    Regression\LinearRegression,
 };
-use Innmind\Immutable\StreamInterface;
+use Innmind\Immutable\Sequence;
 
 final class CrossLane implements StrategyDeterminator
 {
-    private $bounds;
-    private $augment;
+    private Range $bounds;
+    private Augment $augment;
 
     public function __construct(Augment $augment)
     {
-        $this->bounds = Range::inclusive(New Integer(0), new Integer(1));
+        $this->bounds = Range::inclusive(new Integer(0), new Integer(1));
         $this->augment = $augment;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(StreamInterface $states): Strategy
+    public function __invoke(Sequence $states): Strategy
     {
         $dataset = ($this->augment)(
-            (new TimeSensitive)($states)
+            (new TimeSensitive)($states),
         );
         $trend = new LinearRegression($dataset);
         $first = $trend(new Integer(0));
@@ -42,8 +39,8 @@ final class CrossLane implements StrategyDeterminator
             $dataset
                 ->abscissas()
                 ->get(
-                    $dataset->abscissas()->dimension()->decrement()->value()
-                )
+                    $dataset->abscissas()->dimension()->decrement()->value(),
+                ),
         );
 
         return $this->strategy($first, $furthest, $trend);

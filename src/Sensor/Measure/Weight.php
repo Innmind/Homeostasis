@@ -8,14 +8,14 @@ use Innmind\Math\{
     Algebra\Number,
     Algebra\Integer,
     DefinitionSet\Set,
-    DefinitionSet\Range
+    DefinitionSet\Range,
 };
 
 final class Weight
 {
-    private static $definitionSet;
+    private static ?Set $definitionSet = null;
 
-    private $value;
+    private Number $value;
 
     public function __construct(Number $value)
     {
@@ -31,16 +31,16 @@ final class Weight
         return $this->value;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
-        return (string) $this->value;
+        return $this->value->toString();
     }
 
     public static function definitionSet(): Set
     {
-        return self::$definitionSet ?? self::$definitionSet = Range::inclusive(
+        return self::$definitionSet ??= Range::inclusive(
             new Integer(0),
-            new Integer(1)
+            new Integer(1),
         );
     }
 }

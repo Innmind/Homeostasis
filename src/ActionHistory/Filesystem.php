@@ -7,110 +7,93 @@ use Innmind\Homeostasis\{
     ActionHistory,
     Action,
     Strategy,
-    TimeContinuum\Format\ISO8601WithMilliseconds
+    TimeContinuum\Format\ISO8601WithMilliseconds,
 };
 use Innmind\Filesystem\{
     Adapter,
     File,
-    Stream\StringStream
 };
+use Innmind\Stream\Readable\Stream;
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    PointInTimeInterface
+    Clock,
+    PointInTime,
 };
-use Innmind\Immutable\{
-    StreamInterface,
-    Set,
-    Map
-};
+use Innmind\Json\Json;
+use Innmind\Immutable\Sequence;
 
 final class Filesystem implements ActionHistory
 {
-    private $filesystem;
-    private $clock;
+    private Adapter $filesystem;
+    private Clock $clock;
 
-    public function __construct(
-        Adapter $filesystem,
-        TimeContinuumInterface $clock
-    ) {
+    public function __construct(Adapter $filesystem, Clock $clock)
+    {
         $this->filesystem = $filesystem;
         $this->clock = $clock;
     }
 
-    public function add(Action $action): ActionHistory
+    public function add(Action $action): void
     {
         $this->filesystem->add(
-            new File\File(
+            File\File::named(
                 $this->name($action->time()),
-                new StringStream(json_encode($this->normalize($action)))
-            )
+                Stream::ofContent(Json::encode($this->normalize($action))),
+            ),
         );
-
-        return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function all(): StreamInterface
+    public function all(): Sequence
     {
         return $this
             ->filesystem
             ->all()
-            ->reduce(
-                new Set(Action::class),
-                function(Set $actions, string $name, File $file): Set {
-                    return $actions->add(
-                        $this->denormalize(
-                            json_decode((string) $file->content(), true)
-                        )
-                    );
-                }
+            ->mapTo(
+                Action::class,
+                fn(File $file): Action => $this->denormalize($file),
             )
-            ->sort(static function(Action $a, Action $b): bool {
-                return $a->time()->aheadOf($b->time());
+            ->sort(static function(Action $a, Action $b): int {
+                return (int) $a->time()->aheadOf($b->time());
             });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function keepUp(PointInTimeInterface $time): ActionHistory
+    public function keepUp(PointInTime $time): void
     {
         $this
             ->filesystem
             ->all()
-            ->foreach(function(string $name, File $file) use ($time): void {
-                $actiion = $this->denormalize(
-                    json_decode((string) $file->content(), true)
-                );
+            ->foreach(function(File $file) use ($time): void {
+                $action = $this->denormalize($file);
 
-                if ($time->aheadOf($actiion->time())) {
-                    $this->filesystem->remove($name);
+                if ($time->aheadOf($action->time())) {
+                    $this->filesystem->remove($file->name());
                 }
             });
-
-        return $this;
     }
 
+    /**
+     * @return array{time: string, strategy: string}
+     */
     private function normalize(Action $action): array
     {
         return [
             'time' => $action->time()->format(new ISO8601WithMilliseconds),
-            'strategy' => (string) $action->strategy(),
+            'strategy' => $action->strategy()->toString(),
         ];
     }
 
-    private function denormalize(array $data): Action
+    private function denormalize(File $file): Action
     {
+        /** @var array{time: string, strategy: string} */
+        $data = Json::decode($file->content()->toString());
+
         return new Action(
             $this->clock->at($data['time']),
-            Strategy::{$data['strategy']}()
+            Strategy::of($data['strategy']),
         );
     }
 
-    private function name(PointInTimeInterface $time): string
+    private function name(PointInTime $time): string
     {
-        return md5($time->format(new ISO8601WithMilliseconds));
+        return \md5($time->format(new ISO8601WithMilliseconds));
     }
 }

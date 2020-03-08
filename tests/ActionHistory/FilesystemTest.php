@@ -13,17 +13,19 @@ use Innmind\Homeostasis\{
 use Innmind\Filesystem\{
     Adapter,
     File,
-    Stream\StringStream
+    Name,
 };
+use Innmind\Stream\Readable\Stream;
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    TimeContinuum\Earth
+    Clock,
+    Earth\Clock as Earth,
 };
 use Innmind\Math\Algebra\Number\Number;
 use Innmind\Immutable\{
-    Map,
-    StreamInterface
+    Set,
+    Sequence,
 };
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class FilesystemTest extends TestCase
@@ -34,7 +36,7 @@ class FilesystemTest extends TestCase
             ActionHistory::class,
             new Filesystem(
                 $this->createMock(Adapter::class),
-                $this->createMock(TimeContinuumInterface::class)
+                $this->createMock(Clock::class)
             )
         );
     }
@@ -55,14 +57,14 @@ class FilesystemTest extends TestCase
             ->expects($this->once())
             ->method('add')
             ->with($this->callback(function(File $file) use ($now): bool {
-                return (string) $file->name() === md5($now) &&
-                    (string) $file->content() === json_encode([
+                return $file->name()->toString() === md5($now) &&
+                    $file->content()->toString() === json_encode([
                         'time' => $now,
                         'strategy' => 'holdSteady',
                     ]);
             }));
 
-        $this->assertSame($history, $history->add($action));
+        $this->assertNull($history->add($action));
     }
 
     public function testAll()
@@ -78,41 +80,38 @@ class FilesystemTest extends TestCase
             ->expects($this->once())
             ->method('all')
             ->willReturn(
-                (new Map('string', File::class))
-                    ->put(
+                Set::of(
+                    File::class,
+                    File\File::named(
                         md5('foo'),
-                        new File\File(
-                            md5('foo'),
-                            new StringStream(json_encode([
-                                'time' => $now,
-                                'strategy' => 'holdSteady',
-                            ]))
-                        )
-                    )
-                    ->put(
+                        Stream::ofContent(json_encode([
+                            'time' => $now,
+                            'strategy' => 'holdSteady',
+                        ]))
+                    ),
+                    File\File::named(
                         md5('bar'),
-                        new File\File(
-                            md5('bar'),
-                            new StringStream(json_encode([
-                                'time' => $now2,
-                                'strategy' => 'increase',
-                            ]))
-                        )
-                    )
-        );
+                        Stream::ofContent(json_encode([
+                            'time' => $now2,
+                            'strategy' => 'increase',
+                        ]))
+                    ),
+                ),
+            );
 
         $actions = $history->all();
 
-        $this->assertInstanceOf(StreamInterface::class, $actions);
+        $this->assertInstanceOf(Sequence::class, $actions);
         $this->assertSame(Action::class, (string) $actions->type());
         $this->assertCount(2, $actions);
-        $action = $actions->current();
+        $actions = unwrap($actions);
+        $action = \current($actions);
         $this->assertInstanceOf(Action::class, $action);
         $now = $clock->at($now);
         $this->assertTrue($action->time()->equals($now));
         $this->assertSame(Strategy::holdSteady(), $action->strategy());
-        $actions->next();
-        $action = $actions->current();
+        \next($actions);
+        $action = \current($actions);
         $this->assertInstanceOf(Action::class, $action);
         $now2 = $clock->at($now2);
         $this->assertTrue($action->time()->equals($now2));
@@ -134,33 +133,29 @@ class FilesystemTest extends TestCase
             ->expects($this->once())
             ->method('all')
             ->willReturn(
-                (new Map('string', File::class))
-                    ->put(
+                Set::of(
+                    File::class,
+                    File\File::named(
                         md5('foo'),
-                        new File\File(
-                            md5('foo'),
-                            new StringStream(json_encode([
-                                'time' => $now,
-                                'strategy' => 'increase',
-                            ]))
-                        )
-                    )
-                    ->put(
+                        Stream::ofContent(json_encode([
+                            'time' => $now,
+                            'strategy' => 'increase',
+                        ]))
+                    ),
+                    File\File::named(
                         md5('bar'),
-                        new File\File(
-                            md5('bar'),
-                            new StringStream(json_encode([
-                                'time' => $now2,
-                                'strategy' => 'decrease',
-                            ]))
-                        )
-                    )
+                        Stream::ofContent(json_encode([
+                            'time' => $now2,
+                            'strategy' => 'decrease',
+                        ]))
+                    ),
+                ),
         );
         $filesystem
             ->expects($this->once())
             ->method('remove')
-            ->with(md5('foo'));
+            ->with(new Name(md5('foo')));
 
-        $this->assertSame($history, $history->keepUp($mark));
+        $this->assertNull($history->keepUp($mark));
     }
 }

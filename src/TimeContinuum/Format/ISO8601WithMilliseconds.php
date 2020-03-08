@@ -3,11 +3,11 @@ declare(strict_types = 1);
 
 namespace Innmind\Homeostasis\TimeContinuum\Format;
 
-use Innmind\TimeContinuum\FormatInterface;
+use Innmind\TimeContinuum\Format;
 
-final class ISO8601WithMilliseconds implements FormatInterface
+final class ISO8601WithMilliseconds implements Format
 {
-    public function __toString(): string
+    public function toString(): string
     {
         return 'Y-m-d\TH:i:s.uP';
     }

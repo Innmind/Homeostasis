@@ -5,46 +5,44 @@ namespace Innmind\Homeostasis;
 
 use Innmind\Homeostasis\{
     Sensor\Measure,
-    Exception\SumOfWeightsMustBeOne
+    Exception\SumOfWeightsMustBeOne,
 };
 use Innmind\Math\{
     Algebra\Number,
     Algebra\Integer,
-    Statistics\Mean
+    Statistics\Mean,
 };
-use Innmind\TimeContinuum\PointInTimeInterface;
+use Innmind\TimeContinuum\PointInTime;
 use Innmind\Immutable\{
-    Stream,
-    MapInterface
+    Sequence,
+    Map,
+};
+use function Innmind\Immutable\{
+    unwrap,
+    assertMap,
 };
 
 final class State
 {
-    private $time;
-    private $measures;
-    private $value;
+    private PointInTime $time;
+    /** @var Map<string, Measure> */
+    private Map $measures;
+    private Number $value;
 
-    public function __construct(
-        PointInTimeInterface $time,
-        MapInterface $measures
-    ) {
-        if (
-            (string) $measures->keyType() !== 'string' ||
-            (string) $measures->valueType() !== Measure::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 2 must be of type MapInterface<string, %s>',
-                Measure::class
-            ));
-        }
+    /**
+     * @param Map<string, Measure> $measures
+     */
+    public function __construct(PointInTime $time, Map $measures)
+    {
+        assertMap('string', Measure::class, $measures, 2);
 
         $weight = $measures->reduce(
             new Integer(0),
             static function(Number $weight, string $factor, Measure $measure): Number {
                 return $weight->add(
-                    $measure->weight()->value()
+                    $measure->weight()->value(),
                 );
-            }
+            },
         );
 
         if (!$weight->equals(new Integer(1))) {
@@ -54,18 +52,16 @@ final class State
         $this->time = $time;
         $this->measures = $measures;
         $this->value = new Mean(
-            ...$measures->reduce(
-                new Stream(Number::class),
-                static function(Stream $weighted, string $factor, Measure $measure): Stream {
-                    return $weighted->add(
-                        $measure->value()->multiplyBy($measure->weight()->value())
-                    );
-                }
-            )
+            ...unwrap($measures->values()->mapTo(
+                Number::class,
+                static fn(Measure $measure): Number => $measure->value()->multiplyBy(
+                    $measure->weight()->value(),
+                ),
+            )),
         );
     }
 
-    public function time(): PointInTimeInterface
+    public function time(): PointInTime
     {
         return $this->time;
     }
@@ -76,9 +72,9 @@ final class State
     }
 
     /**
-     * @return MapInterface<string, Measure>
+     * @return Map<string, Measure>
      */
-    public function measures(): MapInterface
+    public function measures(): Map
     {
         return $this->measures;
     }
@@ -88,8 +84,8 @@ final class State
         return $this->value;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
-        return (string) $this->value;
+        return $this->value->toString();
     }
 }

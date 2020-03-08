@@ -5,36 +5,40 @@ namespace Innmind\Homeostasis\Sensor;
 
 use Innmind\Homeostasis\{
     Sensor,
-    Sensor\Measure\Weight
+    Sensor\Measure\Weight,
 };
-use Innmind\TimeContinuum\TimeContinuumInterface;
+use Innmind\TimeContinuum\Clock;
 use Innmind\LogReader\{
     Reader,
-    Log as LogLine
+    Log as LogLine,
 };
 use Innmind\Filesystem\{
     Adapter,
     File,
-    Directory
+    Directory,
 };
 use Innmind\Math\{
     Polynom\Polynom,
     Algebra\Number\Number,
-    Algebra\Integer
+    Algebra\Integer,
 };
-use Innmind\Immutable\Stream;
+use Innmind\Immutable\Sequence;
 
 final class Log implements Sensor
 {
-    private $clock;
-    private $read;
-    private $directory;
-    private $weight;
-    private $health;
-    private $watch;
+    private Clock $clock;
+    private Reader $read;
+    private Adapter $directory;
+    private Weight $weight;
+    private Polynom $health;
+    /** @var \Closure(LogLine): bool */
+    private \Closure $watch;
 
+    /**
+     * @param callable(LogLine): bool $watch
+     */
     public function __construct(
-        TimeContinuumInterface $clock,
+        Clock $clock,
         Reader $read,
         Adapter $directory,
         Weight $weight,
@@ -46,29 +50,29 @@ final class Log implements Sensor
         $this->directory = $directory;
         $this->weight = $weight;
         $this->health = $health;
-        $this->watch = $watch;
+        /** @var \Closure(LogLine): bool */
+        $this->watch = \Closure::fromCallable($watch);
     }
 
     public function __invoke(): Measure
     {
+        /** @var array{total: int, errors: int} */
         $logs = $this
             ->directory
             ->all()
-            ->filter(static function(string $name, File $file): bool {
+            ->filter(static function(File $file): bool {
                 return !$file instanceof Directory;
             })
             ->reduce(
-                new Stream(LogLine::class),
-                function(Stream $logs, string $name, File $file): Stream {
-                    return $logs->append(
-                        ($this->read)($file->content())
-                    );
-                }
+                ['total' => 0, 'errors' => 0],
+                function(array $logs, File $file): array {
+                    /** @var array{total: int, errors: int} $logs */
+
+                    return $this->countErrors($logs, $file);
+                },
             );
-        $errors = $logs->filter(function(LogLine $log): bool {
-            return ($this->watch)($log);
-        });
-        $percentage = $logs->size() === 0 ? 0 : $errors->size() / $logs->size();
+
+        $percentage = $logs['total'] === 0 ? 0 : $logs['errors'] / $logs['total'];
         $health = ($this->health)(new Number($percentage));
 
         if ($health->higherThan(new Integer(1))) {
@@ -82,7 +86,28 @@ final class Log implements Sensor
         return new Measure(
             $this->clock->now(),
             $health,
-            $this->weight
+            $this->weight,
+        );
+    }
+
+    /**
+     * @param array{total: int, errors: int} $logs
+     *
+     * @return array{total: int, errors: int}
+     */
+    private function countErrors(array $logs, File $file): array
+    {
+        /** @var array{total: int, errors: int} */
+        return ($this->read)($file->content())->reduce(
+            $logs,
+            function(array $logs, LogLine $line): array {
+                /** @var array{total: int, errors: int} $logs */
+
+                return [
+                    'total' => $logs['total'] + 1,
+                    'errors' => $logs['errors'] + (int) ($this->watch)($line),
+                ];
+            },
         );
     }
 }

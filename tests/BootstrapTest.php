@@ -9,10 +9,9 @@ use Innmind\Homeostasis\{
     Actuator,
     Regulator,
     Regulator\ModulateStateHistory,
-    Regulator\ThreadSafe,
 };
 use Innmind\Filesystem\Adapter;
-use Innmind\TimeContinuum\TimeContinuumInterface;
+use Innmind\TimeContinuum\Clock;
 use Innmind\Immutable\Set;
 use PHPUnit\Framework\TestCase;
 
@@ -24,7 +23,7 @@ class BootstrapTest extends TestCase
             Set::of(Factor::class),
             $this->createMock(Actuator::class),
             $this->createMock(Adapter::class),
-            $this->createMock(TimeContinuumInterface::class)
+            $this->createMock(Clock::class)
         );
 
         $this->assertInstanceOf(Regulator\Regulator::class, $homeostasis['regulator']);
@@ -36,11 +35,6 @@ class BootstrapTest extends TestCase
         $this->assertInstanceOf(
             ModulateStateHistory::class,
             $modulateStateHistory($this->createMock(Regulator::class))
-        );
-        $this->assertIsCallable($homeostasis['thread_safe']);
-        $this->assertInstanceOf(
-            ThreadSafe::class,
-            $homeostasis['thread_safe']($this->createMock(Regulator::class))
         );
     }
 }
