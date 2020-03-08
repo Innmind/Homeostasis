@@ -59,7 +59,7 @@ final class Regulator implements RegulatorInterface
 
         $strategy = ($this->strategyDeterminator)($states);
 
-        $this->actuator->{(string) $strategy}($states);
+        $this->actuator->{$strategy->toString()}($states);
 
         return $strategy;
     }

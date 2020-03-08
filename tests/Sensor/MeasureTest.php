@@ -29,6 +29,7 @@ class MeasureTest extends TestCase
         $this->assertSame($value, $measure->value());
         $this->assertSame($weight, $measure->weight());
         $this->assertSame('0.5', $measure->value()->toString());
+        $this->assertSame('0.5', $measure->toString());
     }
 
     public function testDefinitionSet()

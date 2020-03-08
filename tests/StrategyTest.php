@@ -19,7 +19,7 @@ class StrategyTest extends TestCase
         $strategy = Strategy::dramaticDecrease();
 
         $this->assertInstanceOf(Strategy::class, $strategy);
-        $this->assertSame('dramaticDecrease', (string) $strategy);
+        $this->assertSame('dramaticDecrease', $strategy->toString());
         $this->assertSame($strategy, Strategy::dramaticDecrease());
     }
 
@@ -28,7 +28,7 @@ class StrategyTest extends TestCase
         $strategy = Strategy::decrease();
 
         $this->assertInstanceOf(Strategy::class, $strategy);
-        $this->assertSame('decrease', (string) $strategy);
+        $this->assertSame('decrease', $strategy->toString());
         $this->assertSame($strategy, Strategy::decrease());
     }
 
@@ -37,7 +37,7 @@ class StrategyTest extends TestCase
         $strategy = Strategy::holdSteady();
 
         $this->assertInstanceOf(Strategy::class, $strategy);
-        $this->assertSame('holdSteady', (string) $strategy);
+        $this->assertSame('holdSteady', $strategy->toString());
         $this->assertSame($strategy, Strategy::holdSteady());
     }
 
@@ -46,7 +46,7 @@ class StrategyTest extends TestCase
         $strategy = Strategy::increase();
 
         $this->assertInstanceOf(Strategy::class, $strategy);
-        $this->assertSame('increase', (string) $strategy);
+        $this->assertSame('increase', $strategy->toString());
         $this->assertSame($strategy, Strategy::increase());
     }
 
@@ -55,7 +55,7 @@ class StrategyTest extends TestCase
         $strategy = Strategy::dramaticIncrease();
 
         $this->assertInstanceOf(Strategy::class, $strategy);
-        $this->assertSame('dramaticIncrease', (string) $strategy);
+        $this->assertSame('dramaticIncrease', $strategy->toString());
         $this->assertSame($strategy, Strategy::dramaticIncrease());
     }
 

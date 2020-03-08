@@ -47,7 +47,7 @@ class StateTest extends TestCase
         $this->assertSame(0.275, $state->value()->value());
         $this->assertSame(
             '((0.4 x 0.7) + (0.9 x 0.3)) ÷ 2',
-            (string) $state
+            $state->toString(),
         );
     }
 

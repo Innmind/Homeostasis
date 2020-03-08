@@ -21,6 +21,7 @@ class WeightTest extends TestCase
 
         $this->assertSame($value, $weight->value());
         $this->assertSame('0.5', $weight->value()->toString());
+        $this->assertSame('0.5', $weight->toString());
     }
 
     public function testDefinitionSet()

@@ -52,7 +52,7 @@ final class Measure
         return $this->weight;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->value->toString();
     }

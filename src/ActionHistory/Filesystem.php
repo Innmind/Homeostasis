@@ -88,7 +88,7 @@ final class Filesystem implements ActionHistory
     {
         return [
             'time' => $action->time()->format(new ISO8601WithMilliseconds),
-            'strategy' => (string) $action->strategy(),
+            'strategy' => $action->strategy()->toString(),
         ];
     }
 

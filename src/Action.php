@@ -55,7 +55,7 @@ final class Action
                 return 0;
 
             default:
-                throw new LogicException((string) $this->strategy);
+                throw new LogicException($this->strategy->toString());
         }
     }
 }
