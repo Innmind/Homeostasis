@@ -56,6 +56,7 @@ final class Log implements Sensor
 
     public function __invoke(): Measure
     {
+        /** @var array{total: int, errors: int} */
         $logs = $this
             ->directory
             ->all()
@@ -63,17 +64,15 @@ final class Log implements Sensor
                 return !$file instanceof Directory;
             })
             ->reduce(
-                Sequence::of(LogLine::class),
-                function(Sequence $logs, File $file): Sequence {
-                    return $logs->append(
-                        ($this->read)($file->content())
-                    );
+                ['total' => 0, 'errors' => 0],
+                function(array $logs, File $file): array {
+                    /** @var array{total: int, errors: int} $logs */
+
+                    return $this->countErrors($logs, $file);
                 },
             );
-        $errors = $logs->filter(function(LogLine $log): bool {
-            return ($this->watch)($log);
-        });
-        $percentage = $logs->empty() ? 0 : $errors->size() / $logs->size();
+
+        $percentage = $logs['total'] === 0 ? 0 : $logs['errors'] / $logs['total'];
         $health = ($this->health)(new Number($percentage));
 
         if ($health->higherThan(new Integer(1))) {
@@ -88,6 +87,27 @@ final class Log implements Sensor
             $this->clock->now(),
             $health,
             $this->weight,
+        );
+    }
+
+    /**
+     * @param array{total: int, errors: int} $logs
+     *
+     * @return array{total: int, errors: int}
+     */
+    private function countErrors(array $logs, File $file): array
+    {
+        /** @var array{total: int, errors: int} */
+        return ($this->read)($file->content())->reduce(
+            $logs,
+            function(array $logs, LogLine $line): array {
+                /** @var array{total: int, errors: int} $logs */
+
+                return [
+                    'total' => $logs['total'] + 1,
+                    'errors' => $logs['errors'] + (int) ($this->watch)($line),
+                ];
+            },
         );
     }
 }
