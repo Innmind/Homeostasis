@@ -19,7 +19,7 @@ class BestFitTest extends TestCase
     public function testInvokation()
     {
         $fit = new BestFit(
-            Dataset::fromArray([
+            Dataset::of([
                 [0, 0],
                 [0.1, 0.1],
                 [0.2, 0.175],
@@ -56,7 +56,7 @@ class BestFitTest extends TestCase
     public function testThrowWhenBestFitNotDeterminable()
     {
         $fit = new BestFit(
-            Dataset::fromArray([
+            Dataset::of([
                 [2, 3],
                 [1, 1/3],
             ])

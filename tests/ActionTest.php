@@ -7,7 +7,7 @@ use Innmind\Homeostasis\{
     Action,
     Strategy
 };
-use Innmind\TimeContinuum\PointInTimeInterface;
+use Innmind\TimeContinuum\PointInTime;
 use Innmind\Math\Algebra\Integer;
 use PHPUnit\Framework\TestCase;
 
@@ -16,7 +16,7 @@ class ActionTest extends TestCase
     public function testInterface()
     {
         $action = new Action(
-            $time = $this->createMock(PointInTimeInterface::class),
+            $time = $this->createMock(PointInTime::class),
             Strategy::holdSteady()
         );
 
@@ -30,11 +30,11 @@ class ActionTest extends TestCase
     public function testVariation($current, $previous, $expected)
     {
         $variation = (new Action(
-            $this->createMock(PointInTimeInterface::class),
+            $this->createMock(PointInTime::class),
             Strategy::{$current}()
         ))->variation(
             new Action(
-                $this->createMock(PointInTimeInterface::class),
+                $this->createMock(PointInTime::class),
                 Strategy::{$previous}()
             )
         );

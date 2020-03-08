@@ -7,7 +7,7 @@ use Innmind\Homeostasis\{
     Sensor,
     Sensor\Measure\Weight
 };
-use Innmind\TimeContinuum\TimeContinuumInterface;
+use Innmind\TimeContinuum\Clock;
 use Innmind\Server\Status\Server;
 use Innmind\Math\{
     Polynom\Polynom,
@@ -17,13 +17,13 @@ use Innmind\Math\{
 
 final class Cpu implements Sensor
 {
-    private TimeContinuumInterface $clock;
+    private Clock $clock;
     private Server $server;
     private Weight $weight;
     private Polynom $health;
 
     public function __construct(
-        TimeContinuumInterface $clock,
+        Clock $clock,
         Server $server,
         Weight $weight,
         Polynom $health

@@ -7,7 +7,7 @@ use Innmind\Homeostasis\{
     Sensor\Measure\Weight,
     Exception\OutOfRangeMeasure
 };
-use Innmind\TimeContinuum\PointInTimeInterface;
+use Innmind\TimeContinuum\PointInTime;
 use Innmind\Math\{
     Algebra\Number,
     Algebra\Integer,
@@ -19,12 +19,12 @@ final class Measure
 {
     private static ?Set $definitionSet = null;
 
-    private PointInTimeInterface $time;
+    private PointInTime $time;
     private Number $value;
     private Weight $weight;
 
     public function __construct(
-        PointInTimeInterface $time,
+        PointInTime $time,
         Number $value,
         Weight $weight
     ) {
@@ -37,7 +37,7 @@ final class Measure
         $this->weight = $weight;
     }
 
-    public function time(): PointInTimeInterface
+    public function time(): PointInTime
     {
         return $this->time;
     }

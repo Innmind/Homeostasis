@@ -20,7 +20,7 @@ class WeightTest extends TestCase
         $weight = new Weight($value = new Number(0.5));
 
         $this->assertSame($value, $weight->value());
-        $this->assertSame('0.5', (string) $weight->value());
+        $this->assertSame('0.5', $weight->value()->toString());
     }
 
     public function testDefinitionSet()
@@ -28,7 +28,7 @@ class WeightTest extends TestCase
         $set = Weight::definitionSet();
 
         $this->assertInstanceOf(Set::class, $set);
-        $this->assertSame('[0;1]', (string) $set);
+        $this->assertSame('[0;1]', $set->toString());
         $this->assertSame($set, Weight::definitionSet());
     }
 

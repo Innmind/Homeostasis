@@ -12,28 +12,29 @@ use Innmind\Math\{
     Algebra\Integer,
     Statistics\Mean
 };
-use Innmind\TimeContinuum\PointInTimeInterface;
+use Innmind\TimeContinuum\PointInTime;
 use Innmind\Immutable\{
-    Stream,
-    MapInterface
+    Sequence,
+    Map,
 };
+use function Innmind\Immutable\unwrap;
 
 final class State
 {
-    private PointInTimeInterface $time;
-    private MapInterface $measures;
+    private PointInTime $time;
+    private Map $measures;
     private Number $value;
 
     public function __construct(
-        PointInTimeInterface $time,
-        MapInterface $measures
+        PointInTime $time,
+        Map $measures
     ) {
         if (
             (string) $measures->keyType() !== 'string' ||
             (string) $measures->valueType() !== Measure::class
         ) {
             throw new \TypeError(sprintf(
-                'Argument 2 must be of type MapInterface<string, %s>',
+                'Argument 2 must be of type Map<string, %s>',
                 Measure::class
             ));
         }
@@ -54,18 +55,18 @@ final class State
         $this->time = $time;
         $this->measures = $measures;
         $this->value = new Mean(
-            ...$measures->reduce(
-                new Stream(Number::class),
-                static function(Stream $weighted, string $factor, Measure $measure): Stream {
+            ...unwrap($measures->reduce(
+                Sequence::of(Number::class),
+                static function(Sequence $weighted, string $factor, Measure $measure): Sequence {
                     return $weighted->add(
                         $measure->value()->multiplyBy($measure->weight()->value())
                     );
                 }
-            )
+            )),
         );
     }
 
-    public function time(): PointInTimeInterface
+    public function time(): PointInTime
     {
         return $this->time;
     }
@@ -76,9 +77,9 @@ final class State
     }
 
     /**
-     * @return MapInterface<string, Measure>
+     * @return Map<string, Measure>
      */
-    public function measures(): MapInterface
+    public function measures(): Map
     {
         return $this->measures;
     }
@@ -90,6 +91,6 @@ final class State
 
     public function __toString(): string
     {
-        return (string) $this->value;
+        return $this->value->toString();
     }
 }

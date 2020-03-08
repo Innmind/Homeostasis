@@ -9,16 +9,17 @@ use Innmind\Homeostasis\{
 };
 use Innmind\Filesystem\Adapter;
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
+    Clock,
     ElapsedPeriod,
+    Earth,
 };
-use Innmind\Immutable\SetInterface;
+use Innmind\Immutable\Set;
 
 function bootstrap(
-    SetInterface $factors,
+    Set $factors,
     Actuator $actuator,
     Adapter $stateFilesystem,
-    TimeContinuumInterface $clock,
+    Clock $clock,
     StrategyDeterminator $determinator = null
 ): array {
     $determinator ??= StrategyDeterminators::default();
@@ -35,8 +36,8 @@ function bootstrap(
             $actuator
         ),
         'modulate_state_history' => static function(Adapter $filesystem, ElapsedPeriod $max = null, ElapsedPeriod $min = null) use ($clock, $stateHistory): callable {
-            $max = $max ?? new ElapsedPeriod(86400000); // one day
-            $min = $min ?? new ElapsedPeriod(3600000); // one hour
+            $max ??= new Earth\ElapsedPeriod(86400000); // one day
+            $min ??= new Earth\ElapsedPeriod(3600000); // one hour
 
             return static function(Regulator $regulator) use ($clock, $stateHistory, $filesystem, $max, $min): Regulator {
                 return new Regulator\ModulateStateHistory(

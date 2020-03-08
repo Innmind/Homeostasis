@@ -15,22 +15,22 @@ use Innmind\Math\{
     Algebra\Number\Number
 };
 use Innmind\Immutable\{
-    MapInterface,
-    StreamInterface
+    Map,
+    Sequence,
 };
 
 final class SetTooShort implements StrategyDeterminator
 {
-    private MapInterface $strategies;
+    private Map $strategies;
 
-    public function __construct(MapInterface $strategies)
+    public function __construct(Map $strategies)
     {
         if (
             (string) $strategies->keyType() !== Set::class ||
             (string) $strategies->valueType() !== Strategy::class
         ) {
             throw new \TypeError(sprintf(
-                'Argument 1 must be of type MapInterface<%s, %s>',
+                'Argument 1 must be of type Map<%s, %s>',
                 Set::class,
                 Strategy::class
             ));
@@ -42,7 +42,7 @@ final class SetTooShort implements StrategyDeterminator
     /**
      * {@inheritdoc}
      */
-    public function __invoke(StreamInterface $states): Strategy
+    public function __invoke(Sequence $states): Strategy
     {
         if ($states->size() > 4) {
             throw new StrategyNotDeterminable;
@@ -59,7 +59,7 @@ final class SetTooShort implements StrategyDeterminator
 
                         return $states;
                     }
-                )
+                ),
             );
         }
 

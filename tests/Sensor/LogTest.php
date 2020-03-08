@@ -10,8 +10,8 @@ use Innmind\Homeostasis\{
     Sensor\Measure\Weight
 };
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    PointInTimeInterface
+    Clock,
+    PointInTime,
 };
 use Innmind\LogReader\{
     Reader,
@@ -21,9 +21,10 @@ use Innmind\LogReader\{
 };
 use Innmind\Filesystem\{
     Adapter,
-    Adapter\FilesystemAdapter,
-    Adapter\MemoryAdapter
+    Adapter\Filesystem,
+    Adapter\InMemory
 };
+use Innmind\Url\Path;
 use Innmind\Math\{
     Polynom\Polynom,
     Algebra\Number\Number,
@@ -38,7 +39,7 @@ class LogTest extends TestCase
         $this->assertInstanceOf(
             Sensor::class,
             new Log(
-                $this->createMock(TimeContinuumInterface::class),
+                $this->createMock(Clock::class),
                 $this->createMock(Reader::class),
                 $this->createMock(Adapter::class),
                 new Weight(new Number(0.5)),
@@ -51,9 +52,9 @@ class LogTest extends TestCase
     public function testInvokation()
     {
         $sensor = new Log(
-            $clock = $this->createMock(TimeContinuumInterface::class),
+            $clock = $this->createMock(Clock::class),
             new Synchronous(new Monolog($clock)),
-            new FilesystemAdapter('fixtures/logs/'),
+            new Filesystem(Path::of('fixtures/logs/')),
             $weight = new Weight(new Number(0.5)),
             (new Polynom)->withDegree(
                 new Integer(1),
@@ -67,7 +68,7 @@ class LogTest extends TestCase
         $clock
             ->expects($this->once())
             ->method('now')
-            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($now = $this->createMock(PointInTime::class));
 
         $measure = $sensor();
 
@@ -80,9 +81,9 @@ class LogTest extends TestCase
     public function testInvokationWhenNoLog()
     {
         $sensor = new Log(
-            $clock = $this->createMock(TimeContinuumInterface::class),
+            $clock = $this->createMock(Clock::class),
             new Synchronous(new Monolog($clock)),
-            new MemoryAdapter,
+            new InMemory,
             $weight = new Weight(new Number(0.5)),
             (new Polynom)->withDegree(
                 new Integer(1),
@@ -96,7 +97,7 @@ class LogTest extends TestCase
         $clock
             ->expects($this->once())
             ->method('now')
-            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($now = $this->createMock(PointInTime::class));
 
         $measure = $sensor();
 
@@ -109,9 +110,9 @@ class LogTest extends TestCase
     public function testLimitUpperBound()
     {
         $sensor = new Log(
-            $clock = $this->createMock(TimeContinuumInterface::class),
+            $clock = $this->createMock(Clock::class),
             new Synchronous(new Monolog($clock)),
-            new FilesystemAdapter('fixtures/logs/'),
+            new Filesystem(Path::of('fixtures/logs/')),
             $weight = new Weight(new Number(0.5)),
             (new Polynom(new Integer(2)))->withDegree(
                 new Integer(1),
@@ -125,7 +126,7 @@ class LogTest extends TestCase
         $clock
             ->expects($this->once())
             ->method('now')
-            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($now = $this->createMock(PointInTime::class));
 
         $measure = $sensor();
 
@@ -135,9 +136,9 @@ class LogTest extends TestCase
     public function testLimitLowerBound()
     {
         $sensor = new Log(
-            $clock = $this->createMock(TimeContinuumInterface::class),
+            $clock = $this->createMock(Clock::class),
             new Synchronous(new Monolog($clock)),
-            new FilesystemAdapter('fixtures/logs/'),
+            new Filesystem(Path::of('fixtures/logs/')),
             $weight = new Weight(new Number(0.5)),
             (new Polynom(new Integer(-2)))->withDegree(
                 new Integer(1),
@@ -151,7 +152,7 @@ class LogTest extends TestCase
         $clock
             ->expects($this->once())
             ->method('now')
-            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($now = $this->createMock(PointInTime::class));
 
         $measure = $sensor();
 

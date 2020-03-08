@@ -39,12 +39,12 @@ final class StrategyDeterminators
 
         $delegate = new Delegate(
             new SetTooShort(
-                (new Map(Set::class, Strategy::class))
-                    ->put($veryHigh, Strategy::dramaticDecrease())
-                    ->put($high, Strategy::decrease())
-                    ->put($mid, Strategy::holdSteady())
-                    ->put($low, Strategy::increase())
-                    ->put($veryLow, Strategy::dramaticIncrease())
+                Map::of(Set::class, Strategy::class)
+                    ($veryHigh, Strategy::dramaticDecrease())
+                    ($high, Strategy::decrease())
+                    ($mid, Strategy::holdSteady())
+                    ($low, Strategy::increase())
+                    ($veryLow, Strategy::dramaticIncrease())
             ),
             new WaterLane(
                 $veryHigh,

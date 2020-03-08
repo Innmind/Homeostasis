@@ -46,7 +46,7 @@ final class Augment
             $estimation = $polynom($x);
             $dataset = $dataset->toArray();
             $dataset[] = [$x, $estimation];
-            $dataset = Dataset::fromArray($dataset);
+            $dataset = Dataset::of($dataset);
 
             $predicted = $predicted->increment();
         } while ($this->predict->higherThan($predicted));

@@ -12,12 +12,12 @@ use Innmind\Homeostasis\{
     Action
 };
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    PointInTimeInterface,
-    ElapsedPeriod,
-    Period\Earth\Millisecond
+    Clock,
+    PointInTime,
+    Earth\ElapsedPeriod,
+    Earth\Period\Millisecond,
 };
-use Innmind\Immutable\Stream;
+use Innmind\Immutable\Sequence;
 use PHPUnit\Framework\TestCase;
 
 class ModulateStateHistoryTest extends TestCase
@@ -30,7 +30,7 @@ class ModulateStateHistoryTest extends TestCase
                 $this->createMock(Regulator::class),
                 $this->createMock(ActionHistory::class),
                 $this->createMock(StateHistory::class),
-                $this->createMock(TimeContinuumInterface::class),
+                $this->createMock(Clock::class),
                 new ElapsedPeriod(0),
                 new ElapsedPeriod(0)
             )
@@ -43,14 +43,14 @@ class ModulateStateHistoryTest extends TestCase
             $inner = $this->createMock(Regulator::class),
             $actions = $this->createMock(ActionHistory::class),
             $states = $this->createMock(StateHistory::class),
-            $clock = $this->createMock(TimeContinuumInterface::class),
+            $clock = $this->createMock(Clock::class),
             new ElapsedPeriod(200),
             new ElapsedPeriod(20)
         );
         $clock
             ->expects($this->exactly(3))
             ->method('now')
-            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($now = $this->createMock(PointInTime::class));
         $inner
             ->expects($this->once())
             ->method('__invoke')
@@ -68,7 +68,7 @@ class ModulateStateHistoryTest extends TestCase
             ->with($this->callback(static function(Millisecond $interval): bool {
                 return $interval->milliseconds() === 200;
             }))
-            ->willReturn($max = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($max = $this->createMock(PointInTime::class));
         $actions
             ->expects($this->at(1))
             ->method('keepUp')
@@ -81,27 +81,29 @@ class ModulateStateHistoryTest extends TestCase
             ->expects($this->at(2))
             ->method('all')
             ->willReturn(
-                (new Stream(Action::class))
-                    ->add(new Action(
-                        $this->createMock(PointInTimeInterface::class),
+                Sequence::of(
+                    Action::class,
+                    new Action(
+                        $this->createMock(PointInTime::class),
                         Strategy::increase()
-                    ))
-                    ->add(new Action(
-                        $this->createMock(PointInTimeInterface::class),
+                    ),
+                    new Action(
+                        $this->createMock(PointInTime::class),
                         Strategy::increase()
-                    ))
-                    ->add(new Action(
-                        $this->createMock(PointInTimeInterface::class),
+                    ),
+                    new Action(
+                        $this->createMock(PointInTime::class),
                         Strategy::increase()
-                    ))
-                    ->add(new Action(
-                        $this->createMock(PointInTimeInterface::class),
+                    ),
+                    new Action(
+                        $this->createMock(PointInTime::class),
                         Strategy::increase()
-                    ))
-                    ->add(new Action(
-                        $this->createMock(PointInTimeInterface::class),
+                    ),
+                    new Action(
+                        $this->createMock(PointInTime::class),
                         Strategy::dramaticIncrease()
-                    ))
+                    ),
+                ),
             );
         $now
             ->expects($this->at(1))
@@ -109,7 +111,7 @@ class ModulateStateHistoryTest extends TestCase
             ->with($this->callback(static function(Millisecond $interval): bool {
                 return $interval->milliseconds() === 20;
             }))
-            ->willReturn($min = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($min = $this->createMock(PointInTime::class));
         $actions
             ->expects($this->at(3))
             ->method('keepUp')
@@ -134,14 +136,14 @@ class ModulateStateHistoryTest extends TestCase
             $inner = $this->createMock(Regulator::class),
             $actions = $this->createMock(ActionHistory::class),
             $states = $this->createMock(StateHistory::class),
-            $clock = $this->createMock(TimeContinuumInterface::class),
+            $clock = $this->createMock(Clock::class),
             new ElapsedPeriod(200),
             new ElapsedPeriod(20)
         );
         $clock
             ->expects($this->exactly(2))
             ->method('now')
-            ->willReturn($now = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($now = $this->createMock(PointInTime::class));
         $inner
             ->expects($this->once())
             ->method('__invoke')
@@ -159,7 +161,7 @@ class ModulateStateHistoryTest extends TestCase
             ->with($this->callback(static function(Millisecond $interval): bool {
                 return $interval->milliseconds() === 200;
             }))
-            ->willReturn($max = $this->createMock(PointInTimeInterface::class));
+            ->willReturn($max = $this->createMock(PointInTime::class));
         $actions
             ->expects($this->at(1))
             ->method('keepUp')
@@ -178,27 +180,29 @@ class ModulateStateHistoryTest extends TestCase
             ->expects($this->at(2))
             ->method('all')
             ->willReturn(
-                (new Stream(Action::class))
-                    ->add(new Action(
-                        $this->createMock(PointInTimeInterface::class),
+                Sequence::of(
+                    Action::class,
+                    new Action(
+                        $this->createMock(PointInTime::class),
                         Strategy::dramaticDecrease()
-                    ))
-                    ->add(new Action(
-                        $this->createMock(PointInTimeInterface::class),
+                    ),
+                    new Action(
+                        $this->createMock(PointInTime::class),
                         Strategy::decrease()
-                    ))
-                    ->add(new Action(
-                        $this->createMock(PointInTimeInterface::class),
+                    ),
+                    new Action(
+                        $this->createMock(PointInTime::class),
                         Strategy::holdSteady()
-                    ))
-                    ->add(new Action(
-                        $this->createMock(PointInTimeInterface::class),
+                    ),
+                    new Action(
+                        $this->createMock(PointInTime::class),
                         Strategy::increase()
-                    ))
-                    ->add(new Action(
-                        $this->createMock(PointInTimeInterface::class),
+                    ),
+                    new Action(
+                        $this->createMock(PointInTime::class),
                         Strategy::dramaticDecrease()
-                    ))
+                    ),
+                ),
             );
 
         $this->assertSame(Strategy::decrease(), $regulate());

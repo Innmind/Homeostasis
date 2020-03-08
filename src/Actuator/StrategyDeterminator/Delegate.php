@@ -8,7 +8,7 @@ use Innmind\Homeostasis\{
     Exception\StrategyNotDeterminable,
     Strategy
 };
-use Innmind\Immutable\StreamInterface;
+use Innmind\Immutable\Sequence;
 
 final class Delegate implements StrategyDeterminator
 {
@@ -22,7 +22,7 @@ final class Delegate implements StrategyDeterminator
     /**
      * {@inheritdoc}
      */
-    public function __invoke(StreamInterface $states): Strategy
+    public function __invoke(Sequence $states): Strategy
     {
         foreach ($this->determinators as $determinate) {
             try {

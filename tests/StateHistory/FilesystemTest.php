@@ -14,17 +14,20 @@ use Innmind\Homeostasis\{
 use Innmind\Filesystem\{
     Adapter,
     File,
-    Stream\StringStream
+    Name,
 };
+use Innmind\Stream\Readable\Stream;
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    TimeContinuum\Earth
+    Clock,
+    Earth\Clock as Earth,
 };
 use Innmind\Math\Algebra\Number\Number;
 use Innmind\Immutable\{
     Map,
-    StreamInterface
+    Set,
+    Sequence,
 };
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class FilesystemTest extends TestCase
@@ -35,7 +38,7 @@ class FilesystemTest extends TestCase
             StateHistory::class,
             new Filesystem(
                 $this->createMock(Adapter::class),
-                $this->createMock(TimeContinuumInterface::class)
+                $this->createMock(Clock::class)
             )
         );
     }
@@ -49,7 +52,7 @@ class FilesystemTest extends TestCase
         $now = $clock->now();
         $state = new State(
             $now,
-            (new Map('string', Measure::class))->put(
+            Map::of('string', Measure::class)(
                 'cpu',
                 new Measure(
                     $now,
@@ -63,8 +66,8 @@ class FilesystemTest extends TestCase
             ->expects($this->once())
             ->method('add')
             ->with($this->callback(function(File $file) use ($now): bool {
-                return (string) $file->name() === md5($now) &&
-                    (string) $file->content() === json_encode([
+                return $file->name()->toString() === md5($now) &&
+                    $file->content()->toString() === json_encode([
                         'time' => $now,
                         'measures' => [
                             'cpu' => [
@@ -92,47 +95,44 @@ class FilesystemTest extends TestCase
             ->expects($this->once())
             ->method('all')
             ->willReturn(
-                (new Map('string', File::class))
-                    ->put(
+                Set::of(
+                    File::class,
+                    File\File::named(
                         md5('foo'),
-                        new File\File(
-                            md5('foo'),
-                            new StringStream(json_encode([
-                                'time' => $now,
-                                'measures' => [
-                                    'cpu' => [
-                                        'time' => $now,
-                                        'value' => 0.5,
-                                        'weight' => 1,
-                                    ],
+                        Stream::ofContent(json_encode([
+                            'time' => $now,
+                            'measures' => [
+                                'cpu' => [
+                                    'time' => $now,
+                                    'value' => 0.5,
+                                    'weight' => 1,
                                 ],
-                            ]))
-                        )
-                    )
-                    ->put(
+                            ],
+                        ]))
+                    ),
+                    File\File::named(
                         md5('bar'),
-                        new File\File(
-                            md5('bar'),
-                            new StringStream(json_encode([
-                                'time' => $now2,
-                                'measures' => [
-                                    'cpu' => [
-                                        'time' => $now2,
-                                        'value' => 0.4,
-                                        'weight' => 1,
-                                    ],
+                        Stream::ofContent(json_encode([
+                            'time' => $now2,
+                            'measures' => [
+                                'cpu' => [
+                                    'time' => $now2,
+                                    'value' => 0.4,
+                                    'weight' => 1,
                                 ],
-                            ]))
-                        )
-                    )
+                            ],
+                        ]))
+                    ),
+                ),
         );
 
         $states = $history->all();
 
-        $this->assertInstanceOf(StreamInterface::class, $states);
+        $this->assertInstanceOf(Sequence::class, $states);
         $this->assertSame(State::class, (string) $states->type());
         $this->assertCount(2, $states);
-        $state = $states->current();
+        $states = unwrap($states);
+        $state = \current($states);
         $this->assertInstanceOf(State::class, $state);
         $now = $clock->at($now);
         $this->assertTrue($state->time()->equals($now));
@@ -140,8 +140,8 @@ class FilesystemTest extends TestCase
         $this->assertTrue($measure->time()->equals($now));
         $this->assertSame(0.5, $measure->value()->value());
         $this->assertSame(1, $measure->weight()->value()->value());
-        $states->next();
-        $state = $states->current();
+        \next($states);
+        $state = \current($states);
         $this->assertInstanceOf(State::class, $state);
         $now2 = $clock->at($now2);
         $this->assertTrue($state->time()->equals($now2));
@@ -166,44 +166,40 @@ class FilesystemTest extends TestCase
             ->expects($this->once())
             ->method('all')
             ->willReturn(
-                (new Map('string', File::class))
-                    ->put(
+                Set::of(
+                    File::class,
+                    File\File::named(
                         md5('foo'),
-                        new File\File(
-                            md5('foo'),
-                            new StringStream(json_encode([
-                                'time' => $now,
-                                'measures' => [
-                                    'cpu' => [
-                                        'time' => $now,
-                                        'value' => 0.5,
-                                        'weight' => 1,
-                                    ],
+                        Stream::ofContent(json_encode([
+                            'time' => $now,
+                            'measures' => [
+                                'cpu' => [
+                                    'time' => $now,
+                                    'value' => 0.5,
+                                    'weight' => 1,
                                 ],
-                            ]))
-                        )
-                    )
-                    ->put(
+                            ],
+                        ]))
+                    ),
+                    File\File::named(
                         md5('bar'),
-                        new File\File(
-                            md5('bar'),
-                            new StringStream(json_encode([
-                                'time' => $now2,
-                                'measures' => [
-                                    'cpu' => [
-                                        'time' => $now2,
-                                        'value' => 0.4,
-                                        'weight' => 1,
-                                    ],
+                        Stream::ofContent(json_encode([
+                            'time' => $now2,
+                            'measures' => [
+                                'cpu' => [
+                                    'time' => $now2,
+                                    'value' => 0.4,
+                                    'weight' => 1,
                                 ],
-                            ]))
-                        )
-                    )
+                            ],
+                        ]))
+                    ),
+                ),
         );
         $filesystem
             ->expects($this->once())
             ->method('remove')
-            ->with(md5('foo'));
+            ->with(new Name(md5('foo')));
 
         $this->assertSame($history, $history->keepUp($mark));
     }

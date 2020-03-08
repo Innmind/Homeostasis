@@ -9,7 +9,7 @@ use Innmind\Homeostasis\{
     Sensor,
     Sensor\Measure\Weight
 };
-use Innmind\TimeContinuum\TimeContinuumInterface;
+use Innmind\TimeContinuum\Clock;
 use Innmind\Server\Status\Server;
 use Innmind\Math\{
     Polynom\Polynom,
@@ -24,7 +24,7 @@ class CpuTest extends TestCase
         $this->assertInstanceOf(
             Factor::class,
             $factor = new Cpu(
-                $this->createMock(TimeContinuumInterface::class),
+                $this->createMock(Clock::class),
                 $this->createMock(Server::class),
                 new Weight(new Number(0.5)),
                 new Polynom

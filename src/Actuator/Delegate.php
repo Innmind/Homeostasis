@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\Homeostasis\Actuator;
 
 use Innmind\Homeostasis\Actuator;
-use Innmind\Immutable\StreamInterface;
+use Innmind\Immutable\Sequence;
 
 final class Delegate implements Actuator
 {
@@ -18,7 +18,7 @@ final class Delegate implements Actuator
     /**
      * {@inheritdoc}
      */
-    public function dramaticDecrease(StreamInterface $states): void
+    public function dramaticDecrease(Sequence $states): void
     {
         foreach ($this->actuators as $actuator) {
             $actuator->dramaticDecrease($states);
@@ -28,7 +28,7 @@ final class Delegate implements Actuator
     /**
      * {@inheritdoc}
      */
-    public function decrease(StreamInterface $states): void
+    public function decrease(Sequence $states): void
     {
         foreach ($this->actuators as $actuator) {
             $actuator->decrease($states);
@@ -38,7 +38,7 @@ final class Delegate implements Actuator
     /**
      * {@inheritdoc}
      */
-    public function holdSteady(StreamInterface $states): void
+    public function holdSteady(Sequence $states): void
     {
         foreach ($this->actuators as $actuator) {
             $actuator->holdSteady($states);
@@ -48,7 +48,7 @@ final class Delegate implements Actuator
     /**
      * {@inheritdoc}
      */
-    public function increase(StreamInterface $states): void
+    public function increase(Sequence $states): void
     {
         foreach ($this->actuators as $actuator) {
             $actuator->increase($states);
@@ -58,7 +58,7 @@ final class Delegate implements Actuator
     /**
      * {@inheritdoc}
      */
-    public function dramaticIncrease(StreamInterface $states): void
+    public function dramaticIncrease(Sequence $states): void
     {
         foreach ($this->actuators as $actuator) {
             $actuator->dramaticIncrease($states);

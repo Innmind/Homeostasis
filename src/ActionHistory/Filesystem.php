@@ -12,14 +12,14 @@ use Innmind\Homeostasis\{
 use Innmind\Filesystem\{
     Adapter,
     File,
-    Stream\StringStream
 };
+use Innmind\Stream\Readable\Stream;
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    PointInTimeInterface
+    Clock,
+    PointInTime,
 };
 use Innmind\Immutable\{
-    StreamInterface,
+    Sequence,
     Set,
     Map
 };
@@ -27,11 +27,11 @@ use Innmind\Immutable\{
 final class Filesystem implements ActionHistory
 {
     private Adapter $filesystem;
-    private TimeContinuumInterface $clock;
+    private Clock $clock;
 
     public function __construct(
         Adapter $filesystem,
-        TimeContinuumInterface $clock
+        Clock $clock
     ) {
         $this->filesystem = $filesystem;
         $this->clock = $clock;
@@ -40,9 +40,9 @@ final class Filesystem implements ActionHistory
     public function add(Action $action): ActionHistory
     {
         $this->filesystem->add(
-            new File\File(
+            File\File::named(
                 $this->name($action->time()),
-                new StringStream(json_encode($this->normalize($action)))
+                Stream::ofContent(json_encode($this->normalize($action)))
             )
         );
 
@@ -52,20 +52,16 @@ final class Filesystem implements ActionHistory
     /**
      * {@inheritdoc}
      */
-    public function all(): StreamInterface
+    public function all(): Sequence
     {
         return $this
             ->filesystem
             ->all()
-            ->reduce(
-                new Set(Action::class),
-                function(Set $actions, string $name, File $file): Set {
-                    return $actions->add(
-                        $this->denormalize(
-                            json_decode((string) $file->content(), true)
-                        )
-                    );
-                }
+            ->mapTo(
+                Action::class,
+                fn(File $file): Action => $this->denormalize(
+                    json_decode($file->content()->toString(), true)
+                ),
             )
             ->sort(static function(Action $a, Action $b): bool {
                 return $a->time()->aheadOf($b->time());
@@ -75,18 +71,18 @@ final class Filesystem implements ActionHistory
     /**
      * {@inheritdoc}
      */
-    public function keepUp(PointInTimeInterface $time): ActionHistory
+    public function keepUp(PointInTime $time): ActionHistory
     {
         $this
             ->filesystem
             ->all()
-            ->foreach(function(string $name, File $file) use ($time): void {
-                $actiion = $this->denormalize(
-                    json_decode((string) $file->content(), true)
+            ->foreach(function(File $file) use ($time): void {
+                $action = $this->denormalize(
+                    json_decode($file->content()->toString(), true)
                 );
 
-                if ($time->aheadOf($actiion->time())) {
-                    $this->filesystem->remove($name);
+                if ($time->aheadOf($action->time())) {
+                    $this->filesystem->remove($file->name());
                 }
             });
 
@@ -109,7 +105,7 @@ final class Filesystem implements ActionHistory
         );
     }
 
-    private function name(PointInTimeInterface $time): string
+    private function name(PointInTime $time): string
     {
         return md5($time->format(new ISO8601WithMilliseconds));
     }

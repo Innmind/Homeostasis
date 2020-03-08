@@ -8,7 +8,7 @@ use Innmind\Homeostasis\{
     Actuator,
     State
 };
-use Innmind\Immutable\Stream;
+use Innmind\Immutable\Sequence;
 use PHPUnit\Framework\TestCase;
 
 class DelegateTest extends TestCase
@@ -27,7 +27,7 @@ class DelegateTest extends TestCase
             $mock1 = $this->createMock(Actuator::class),
             $mock2 = $this->createMock(Actuator::class)
         );
-        $stream = new Stream(State::class);
+        $stream = Sequence::of(State::class);
         $mock1
             ->expects($this->once())
             ->method('dramaticDecrease')
@@ -46,7 +46,7 @@ class DelegateTest extends TestCase
             $mock1 = $this->createMock(Actuator::class),
             $mock2 = $this->createMock(Actuator::class)
         );
-        $stream = new Stream(State::class);
+        $stream = Sequence::of(State::class);
         $mock1
             ->expects($this->once())
             ->method('decrease')
@@ -65,7 +65,7 @@ class DelegateTest extends TestCase
             $mock1 = $this->createMock(Actuator::class),
             $mock2 = $this->createMock(Actuator::class)
         );
-        $stream = new Stream(State::class);
+        $stream = Sequence::of(State::class);
         $mock1
             ->expects($this->once())
             ->method('holdSteady')
@@ -84,7 +84,7 @@ class DelegateTest extends TestCase
             $mock1 = $this->createMock(Actuator::class),
             $mock2 = $this->createMock(Actuator::class)
         );
-        $stream = new Stream(State::class);
+        $stream = Sequence::of(State::class);
         $mock1
             ->expects($this->once())
             ->method('increase')
@@ -103,7 +103,7 @@ class DelegateTest extends TestCase
             $mock1 = $this->createMock(Actuator::class),
             $mock2 = $this->createMock(Actuator::class)
         );
-        $stream = new Stream(State::class);
+        $stream = Sequence::of(State::class);
         $mock1
             ->expects($this->once())
             ->method('dramaticIncrease')

@@ -11,10 +11,10 @@ use Innmind\Homeostasis\{
     Action
 };
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    PointInTimeInterface,
+    Clock,
+    PointInTime,
     ElapsedPeriod,
-    Period\Earth\Millisecond
+    Earth\Period\Millisecond,
 };
 use Innmind\Math\{
     Algebra\Number\Number,
@@ -22,9 +22,10 @@ use Innmind\Math\{
     Statistics\Frequence
 };
 use Innmind\Immutable\{
-    Stream,
+    Sequence,
     Pair
 };
+use function Innmind\Immutable\unwrap;
 
 /**
  * Reduce the state history when everything is globally stable in order to
@@ -37,7 +38,7 @@ final class ModulateStateHistory implements Regulator
     private Regulator $regulate;
     private ActionHistory $actions;
     private StateHistory $states;
-    private TimeContinuumInterface $clock;
+    private Clock $clock;
     private ElapsedPeriod $maxHistory;
     private ElapsedPeriod $minHistory;
     private Number $threshold;
@@ -46,7 +47,7 @@ final class ModulateStateHistory implements Regulator
         Regulator $regulator,
         ActionHistory $actions,
         StateHistory $states,
-        TimeContinuumInterface $clock,
+        Clock $clock,
         ElapsedPeriod $maxHistory,
         ElapsedPeriod $minHistory
     ) {
@@ -85,8 +86,8 @@ final class ModulateStateHistory implements Regulator
             ->actions
             ->all()
             ->reduce(
-                new Stream(Pair::class),
-                static function(Stream $variations, Action $action): Stream {
+                Sequence::of(Pair::class),
+                static function(Sequence $variations, Action $action): Sequence {
                     if ($variations->size() === 0) {
                         return $variations->add(new Pair(new Integer(0), $action));
                     }
@@ -98,14 +99,14 @@ final class ModulateStateHistory implements Regulator
                 }
             )
             ->reduce(
-                new Stream(Integer::class),
-                static function(Stream $variations, Pair $action): Stream {
+                Sequence::of(Integer::class),
+                static function(Sequence $variations, Pair $action): Sequence {
                     return $variations->add(
                         $action->key()
                     );
                 }
             );
-        $frequence = new Frequence(...$variations);
+        $frequence = new Frequence(...unwrap($variations));
 
         if ($frequence(new Integer(0))->higherThan($this->threshold)) {
             $this->keepUp(
@@ -118,7 +119,7 @@ final class ModulateStateHistory implements Regulator
         }
     }
 
-    private function keepUp(PointInTimeInterface $time): void
+    private function keepUp(PointInTime $time): void
     {
         $this->actions->keepUp($time);
         $this->states->keepUp($time);

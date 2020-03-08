@@ -6,35 +6,32 @@ namespace Innmind\Homeostasis\Math\Dataset;
 use Innmind\Homeostasis\State;
 use Innmind\Math\Regression\Dataset;
 use Innmind\Immutable\{
-    StreamInterface,
-    Stream,
-    Pair
+    Sequence,
+    Pair,
 };
 
 final class TimeSensitive
 {
     /**
-     * @param StreamInterface<State> $states
+     * @param Sequence<State> $states
      */
-    public function __invoke(StreamInterface $states): Dataset
+    public function __invoke(Sequence $states): Dataset
     {
         $points = $states->reduce(
-            new Stream(Pair::class),
-            static function(Stream $points, State $state): Stream {
+            Sequence::of(Pair::class),
+            static function(Sequence $points, State $state): Sequence {
                 $key = 0;
 
-                if ($points->size() > 0) {
+                if (!$points->empty()) {
                     $key = $state
                         ->time()
                         ->elapsedSince(
                             $points->first()->value()->time()
                         )
                         ->milliseconds();
-
                 }
-                return $points->add(
-                    new Pair($key, $state)
-                );
+
+                return ($points)(new Pair($key, $state));
             }
         );
         $previous = $points->first()->key();
@@ -70,6 +67,6 @@ final class TimeSensitive
                 }
             );
 
-        return Dataset::fromArray($points);
+        return Dataset::of($points);
     }
 }

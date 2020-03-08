@@ -13,15 +13,15 @@ use Innmind\Homeostasis\{
 use Innmind\Filesystem\{
     Adapter,
     File,
-    Stream\StringStream
 };
+use Innmind\Stream\Readable\Stream;
 use Innmind\TimeContinuum\{
-    TimeContinuumInterface,
-    PointInTimeInterface
+    Clock,
+    PointInTime,
 };
 use Innmind\Math\Algebra\Number\Number;
 use Innmind\Immutable\{
-    StreamInterface,
+    Sequence,
     Set,
     Map
 };
@@ -29,11 +29,11 @@ use Innmind\Immutable\{
 final class Filesystem implements StateHistory
 {
     private Adapter $filesystem;
-    private TimeContinuumInterface $clock;
+    private Clock $clock;
 
     public function __construct(
         Adapter $filesystem,
-        TimeContinuumInterface $clock
+        Clock $clock
     ) {
         $this->filesystem = $filesystem;
         $this->clock = $clock;
@@ -42,9 +42,9 @@ final class Filesystem implements StateHistory
     public function add(State $state): StateHistory
     {
         $this->filesystem->add(
-            new File\File(
+            File\File::named(
                 $this->name($state->time()),
-                new StringStream(json_encode($this->normalize($state)))
+                Stream::ofContent(json_encode($this->normalize($state)))
             )
         );
 
@@ -54,17 +54,17 @@ final class Filesystem implements StateHistory
     /**
      * {@inheritdoc}
      */
-    public function all(): StreamInterface
+    public function all(): Sequence
     {
         return $this
             ->filesystem
             ->all()
             ->reduce(
-                new Set(State::class),
-                function(Set $states, string $name, File $file): Set {
+                Set::of(State::class),
+                function(Set $states, File $file): Set {
                     return $states->add(
                         $this->denormalize(
-                            json_decode((string) $file->content(), true)
+                            json_decode($file->content()->toString(), true)
                         )
                     );
                 }
@@ -77,18 +77,18 @@ final class Filesystem implements StateHistory
     /**
      * {@inheritdoc}
      */
-    public function keepUp(PointInTimeInterface $time): StateHistory
+    public function keepUp(PointInTime $time): StateHistory
     {
         $this
             ->filesystem
             ->all()
-            ->foreach(function(string $name, File $file) use ($time): void {
+            ->foreach(function(File $file) use ($time): void {
                 $state = $this->denormalize(
-                    json_decode((string) $file->content(), true)
+                    json_decode($file->content()->toString(), true)
                 );
 
                 if ($time->aheadOf($state->time())) {
-                    $this->filesystem->remove($name);
+                    $this->filesystem->remove($file->name());
                 }
             });
 
@@ -118,7 +118,7 @@ final class Filesystem implements StateHistory
         );
     }
 
-    private function name(PointInTimeInterface $time): string
+    private function name(PointInTime $time): string
     {
         return md5($time->format(new ISO8601WithMilliseconds));
     }
@@ -134,10 +134,10 @@ final class Filesystem implements StateHistory
 
     private function denormalizeMeasures(array $data): Map
     {
-        $map = new Map('string', Measure::class);
+        $map = Map::of('string', Measure::class);
 
         foreach ($data as $factor => $measure) {
-            $map = $map->put(
+            $map = ($map)(
                 $factor,
                 new Measure(
                     $this->clock->at($measure['time']),

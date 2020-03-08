@@ -13,30 +13,30 @@ use Innmind\Homeostasis\{
     Actuator,
     Actuator\StrategyDeterminator
 };
-use Innmind\TimeContinuum\TimeContinuumInterface;
+use Innmind\TimeContinuum\Clock;
 use Innmind\Immutable\{
-    SetInterface,
+    Set,
     Map
 };
 
 final class Regulator implements RegulatorInterface
 {
-    private SetInterface $factors;
+    private Set $factors;
     private StateHistory $history;
-    private TimeContinuumInterface $clock;
+    private Clock $clock;
     private StrategyDeterminator $strategyDeterminator;
     private Actuator $actuator;
 
     public function __construct(
-        SetInterface $factors,
+        Set $factors,
         StateHistory $history,
-        TimeContinuumInterface $clock,
+        Clock $clock,
         StrategyDeterminator $strategyDeterminator,
         Actuator $actuator
     ) {
         if ((string) $factors->type() !== Factor::class) {
             throw new \TypeError(sprintf(
-                'Argument 1 must be of type SetInterface<%s>',
+                'Argument 1 must be of type Set<%s>',
                 Factor::class
             ));
         }
@@ -67,9 +67,9 @@ final class Regulator implements RegulatorInterface
         return new State(
             $this->clock->now(),
             $this->factors->reduce(
-                new Map('string', Measure::class),
+                Map::of('string', Measure::class),
                 static function(Map $measures, Factor $factor): Map {
-                    return $measures->put(
+                    return ($measures)(
                         $factor->name(),
                         $factor->sensor()()
                     );

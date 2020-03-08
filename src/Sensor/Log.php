@@ -7,7 +7,7 @@ use Innmind\Homeostasis\{
     Sensor,
     Sensor\Measure\Weight
 };
-use Innmind\TimeContinuum\TimeContinuumInterface;
+use Innmind\TimeContinuum\Clock;
 use Innmind\LogReader\{
     Reader,
     Log as LogLine
@@ -22,11 +22,11 @@ use Innmind\Math\{
     Algebra\Number\Number,
     Algebra\Integer
 };
-use Innmind\Immutable\Stream;
+use Innmind\Immutable\Sequence;
 
 final class Log implements Sensor
 {
-    private TimeContinuumInterface $clock;
+    private Clock $clock;
     private Reader $read;
     private Adapter $directory;
     private Weight $weight;
@@ -34,7 +34,7 @@ final class Log implements Sensor
     private \Closure $watch;
 
     public function __construct(
-        TimeContinuumInterface $clock,
+        Clock $clock,
         Reader $read,
         Adapter $directory,
         Weight $weight,
@@ -54,12 +54,12 @@ final class Log implements Sensor
         $logs = $this
             ->directory
             ->all()
-            ->filter(static function(string $name, File $file): bool {
+            ->filter(static function(File $file): bool {
                 return !$file instanceof Directory;
             })
             ->reduce(
-                new Stream(LogLine::class),
-                function(Stream $logs, string $name, File $file): Stream {
+                Sequence::of(LogLine::class),
+                function(Sequence $logs, File $file): Sequence {
                     return $logs->append(
                         ($this->read)($file->content())
                     );

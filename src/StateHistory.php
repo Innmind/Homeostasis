@@ -3,20 +3,20 @@ declare(strict_types = 1);
 
 namespace Innmind\Homeostasis;
 
-use Innmind\TimeContinuum\PointInTimeInterface;
-use Innmind\Immutable\StreamInterface;
+use Innmind\TimeContinuum\PointInTime;
+use Innmind\Immutable\Sequence;
 
 interface StateHistory
 {
     public function add(State $state): self;
 
     /**
-     * @return StreamInterface<State>
+     * @return Sequence<State>
      */
-    public function all(): StreamInterface;
+    public function all(): Sequence;
 
     /**
      * Remove all states before the given date
      */
-    public function keepUp(PointInTimeInterface $time): self;
+    public function keepUp(PointInTime $time): self;
 }

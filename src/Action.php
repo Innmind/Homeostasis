@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Homeostasis;
 
-use Innmind\TimeContinuum\PointInTimeInterface;
+use Innmind\TimeContinuum\PointInTime;
 use Innmind\Math\Algebra\Integer;
 
 /**
@@ -11,18 +11,18 @@ use Innmind\Math\Algebra\Integer;
  */
 final class Action
 {
-    private PointInTimeInterface $time;
+    private PointInTime $time;
     private Strategy $strategy;
 
     public function __construct(
-        PointInTimeInterface $time,
+        PointInTime $time,
         Strategy $strategy
     ) {
         $this->time = $time;
         $this->strategy = $strategy;
     }
 
-    public function time(): PointInTimeInterface
+    public function time(): PointInTime
     {
         return $this->time;
     }

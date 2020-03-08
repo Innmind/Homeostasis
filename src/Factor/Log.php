@@ -9,7 +9,7 @@ use Innmind\Homeostasis\{
     Sensor\Log as LogSensor,
     Sensor\Measure\Weight
 };
-use Innmind\TimeContinuum\TimeContinuumInterface;
+use Innmind\TimeContinuum\Clock;
 use Innmind\LogReader\Reader;
 use Innmind\Filesystem\Adapter;
 use Innmind\Math\Polynom\Polynom;
@@ -20,7 +20,7 @@ final class Log implements Factor
     private string $name;
 
     public function __construct(
-        TimeContinuumInterface $clock,
+        Clock $clock,
         Reader $reader,
         Adapter $directory,
         Weight $weight,

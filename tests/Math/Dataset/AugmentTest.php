@@ -27,7 +27,7 @@ class AugmentTest extends TestCase
         $augment = new Augment(new Integer(2));
 
         $augmented = $augment(
-            $dataset = Dataset::fromArray($data = [
+            $dataset = Dataset::of($data = [
                 [0, 0],
                 [1, 1],
                 [2, 2],

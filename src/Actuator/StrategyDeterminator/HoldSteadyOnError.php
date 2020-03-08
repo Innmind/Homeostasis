@@ -8,7 +8,7 @@ use Innmind\Homeostasis\{
     Exception\Exception,
     Strategy
 };
-use Innmind\Immutable\StreamInterface;
+use Innmind\Immutable\Sequence;
 
 final class HoldSteadyOnError implements StrategyDeterminator
 {
@@ -22,7 +22,7 @@ final class HoldSteadyOnError implements StrategyDeterminator
     /**
      * {@inheritdoc}
      */
-    public function __invoke(StreamInterface $states): Strategy
+    public function __invoke(Sequence $states): Strategy
     {
         try {
             return ($this->determinate)($states);
