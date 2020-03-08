@@ -53,7 +53,7 @@ $homeostasis = bootstrap(
             (new Polynom)->withDegree(new Integer(1), new Integer(1)),
             static function(LogLine $line): bool {
                 return $line->attributes()->contains('level') &&
-                    $line->attributes()->get('level')->value() === LogLevel:CRITICAL;
+                    $line->attributes()->get('level')->value() === LogLevel::CRITICAL;
             },
             'symfony',
         ),
