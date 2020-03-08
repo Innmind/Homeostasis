@@ -52,8 +52,5 @@ function bootstrap(
                 );
             };
         },
-        'thread_safe' => static function(Regulator $regulator): Regulator {
-            return new Regulator\ThreadSafe($regulator);
-        },
     ];
 }

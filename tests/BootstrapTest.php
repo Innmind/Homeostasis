@@ -37,10 +37,5 @@ class BootstrapTest extends TestCase
             ModulateStateHistory::class,
             $modulateStateHistory($this->createMock(Regulator::class))
         );
-        $this->assertIsCallable($homeostasis['thread_safe']);
-        $this->assertInstanceOf(
-            ThreadSafe::class,
-            $homeostasis['thread_safe']($this->createMock(Regulator::class))
-        );
     }
 }
