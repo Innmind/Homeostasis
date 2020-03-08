@@ -5,9 +5,15 @@ namespace Tests\Innmind\Homeostasis;
 
 use Innmind\Homeostasis\Strategy;
 use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\{
+    PHPUnit\BlackBox,
+    Set,
+};
 
 class StrategyTest extends TestCase
 {
+    use BlackBox;
+
     public function testDramaticDecrease()
     {
         $strategy = Strategy::dramaticDecrease();
@@ -51,5 +57,20 @@ class StrategyTest extends TestCase
         $this->assertInstanceOf(Strategy::class, $strategy);
         $this->assertSame('dramaticIncrease', (string) $strategy);
         $this->assertSame($strategy, Strategy::dramaticIncrease());
+    }
+
+    public function testOfMethodAlwaysReturnTheSameInstanceAsDedicatedMethods()
+    {
+        $this
+            ->forAll(Set\Elements::of(
+                'dramaticDecrease',
+                'decrease',
+                'holdSteady',
+                'increase',
+                'dramaticIncrease',
+            ))
+            ->then(function($strategy) {
+                $this->assertSame(Strategy::$strategy(), Strategy::of($strategy));
+            });
     }
 }

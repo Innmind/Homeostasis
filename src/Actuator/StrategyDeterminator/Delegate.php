@@ -12,6 +12,7 @@ use Innmind\Immutable\Sequence;
 
 final class Delegate implements StrategyDeterminator
 {
+    /** @var list<StrategyDeterminator> */
     private array $determinators;
 
     public function __construct(StrategyDeterminator ...$determinators)

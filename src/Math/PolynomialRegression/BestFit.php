@@ -23,11 +23,14 @@ final class BestFit
 
     public function __invoke(Integer $a, Integer $b): Polynom
     {
+        /** @var PolynomialRegression|null */
+        $bestFit = null;
+
         do {
             try {
                 $regressed = new PolynomialRegression($this->dataset, $a);
 
-                if (!isset($bestFit)) {
+                if (\is_null($bestFit)) {
                     $bestFit = $regressed;
                 }
 
@@ -41,7 +44,7 @@ final class BestFit
             $a = $a->increment();
         } while ($b->higherThan($a) || $b->equals($a));
 
-        if (!isset($bestFit)) {
+        if (\is_null($bestFit)) {
             throw new BestFitNotDeterminable;
         }
 

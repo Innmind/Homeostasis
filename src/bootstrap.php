@@ -15,6 +15,11 @@ use Innmind\TimeContinuum\{
 };
 use Innmind\Immutable\Set;
 
+/**
+ * @param Set<Factor> $factors
+ *
+ * @return array{regulator: Regulator, modulate_state_history: callable(Adapter, ElapsedPeriod = null, ElapsedPeriod = null): (callable(Regulator): Regulator)}
+ */
 function bootstrap(
     Set $factors,
     Actuator $actuator,

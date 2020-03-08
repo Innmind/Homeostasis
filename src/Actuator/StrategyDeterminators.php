@@ -37,9 +37,11 @@ final class StrategyDeterminators
         $veryLow = new Range(true, new Number(0), new Number(0.2), false); // [0;0.2[
         $predict = new Augment(new Integer(1));
 
+        /** @var Map<Set, Strategy> */
+        $strategies = Map::of(Set::class, Strategy::class);
         $delegate = new Delegate(
             new SetTooShort(
-                Map::of(Set::class, Strategy::class)
+                $strategies
                     ($veryHigh, Strategy::dramaticDecrease())
                     ($high, Strategy::decrease())
                     ($mid, Strategy::holdSteady())

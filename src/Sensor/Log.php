@@ -31,8 +31,12 @@ final class Log implements Sensor
     private Adapter $directory;
     private Weight $weight;
     private Polynom $health;
+    /** @var \Closure(LogLine): bool */
     private \Closure $watch;
 
+    /**
+     * @param callable(LogLine): bool $watch
+     */
     public function __construct(
         Clock $clock,
         Reader $read,
@@ -46,6 +50,7 @@ final class Log implements Sensor
         $this->directory = $directory;
         $this->weight = $weight;
         $this->health = $health;
+        /** @var \Closure(LogLine): bool */
         $this->watch = \Closure::fromCallable($watch);
     }
 

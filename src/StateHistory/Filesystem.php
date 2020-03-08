@@ -59,18 +59,12 @@ final class Filesystem implements StateHistory
         return $this
             ->filesystem
             ->all()
-            ->reduce(
-                Set::of(State::class),
-                function(Set $states, File $file): Set {
-                    return $states->add(
-                        $this->denormalize(
-                            json_decode($file->content()->toString(), true)
-                        )
-                    );
-                }
+            ->mapTo(
+                State::class,
+                fn(File $file): State => $this->denormalize($file),
             )
-            ->sort(static function(State $a, State $b): bool {
-                return $a->time()->aheadOf($b->time());
+            ->sort(static function(State $a, State $b): int {
+                return (int) $a->time()->aheadOf($b->time());
             });
     }
 
@@ -83,9 +77,7 @@ final class Filesystem implements StateHistory
             ->filesystem
             ->all()
             ->foreach(function(File $file) use ($time): void {
-                $state = $this->denormalize(
-                    json_decode($file->content()->toString(), true)
-                );
+                $state = $this->denormalize($file);
 
                 if ($time->aheadOf($state->time())) {
                     $this->filesystem->remove($file->name());
@@ -110,8 +102,11 @@ final class Filesystem implements StateHistory
         ];
     }
 
-    private function denormalize(array $data): State
+    private function denormalize(File $file): State
     {
+        /** @var array{time: string, measures: array<string, array{time: string, value: int|float, weight: int|float}>} */
+        $data = json_decode($file->content()->toString(), true);
+
         return new State(
             $this->clock->at($data['time']),
             $this->denormalizeMeasures($data['measures'])
@@ -123,6 +118,9 @@ final class Filesystem implements StateHistory
         return md5($time->format(new ISO8601WithMilliseconds));
     }
 
+    /**
+     * @return array{time: string, value: int|float, weight: int|float}
+     */
     private function normalizeMeasure(Measure $measure): array
     {
         return [
@@ -132,8 +130,14 @@ final class Filesystem implements StateHistory
         ];
     }
 
+    /**
+     * @param array<string, array{time: string, value: int|float, weight: int|float}> $data
+     *
+     * @return Map<string, Measure>
+     */
     private function denormalizeMeasures(array $data): Map
     {
+        /** @var Map<string, Measure> */
         $map = Map::of('string', Measure::class);
 
         foreach ($data as $factor => $measure) {

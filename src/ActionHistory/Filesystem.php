@@ -59,12 +59,10 @@ final class Filesystem implements ActionHistory
             ->all()
             ->mapTo(
                 Action::class,
-                fn(File $file): Action => $this->denormalize(
-                    json_decode($file->content()->toString(), true)
-                ),
+                fn(File $file): Action => $this->denormalize($file),
             )
-            ->sort(static function(Action $a, Action $b): bool {
-                return $a->time()->aheadOf($b->time());
+            ->sort(static function(Action $a, Action $b): int {
+                return (int) $a->time()->aheadOf($b->time());
             });
     }
 
@@ -77,9 +75,7 @@ final class Filesystem implements ActionHistory
             ->filesystem
             ->all()
             ->foreach(function(File $file) use ($time): void {
-                $action = $this->denormalize(
-                    json_decode($file->content()->toString(), true)
-                );
+                $action = $this->denormalize($file);
 
                 if ($time->aheadOf($action->time())) {
                     $this->filesystem->remove($file->name());
@@ -89,6 +85,9 @@ final class Filesystem implements ActionHistory
         return $this;
     }
 
+    /**
+     * @return array{time: string, strategy: string}
+     */
     private function normalize(Action $action): array
     {
         return [
@@ -97,11 +96,14 @@ final class Filesystem implements ActionHistory
         ];
     }
 
-    private function denormalize(array $data): Action
+    private function denormalize(File $file): Action
     {
+        /** @var array{time: string, strategy: string} */
+        $data = json_decode($file->content()->toString(), true);
+
         return new Action(
             $this->clock->at($data['time']),
-            Strategy::{$data['strategy']}()
+            Strategy::of($data['strategy']),
         );
     }
 

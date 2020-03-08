@@ -8,6 +8,7 @@ use Innmind\Immutable\Sequence;
 
 final class Delegate implements Actuator
 {
+    /** @var list<Actuator> */
     private array $actuators;
 
     public function __construct(Actuator ...$actuators)

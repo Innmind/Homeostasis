@@ -10,7 +10,10 @@ use Innmind\Homeostasis\{
     Sensor\Measure\Weight
 };
 use Innmind\TimeContinuum\Clock;
-use Innmind\LogReader\Reader;
+use Innmind\LogReader\{
+    Reader,
+    Log as LogLine,
+};
 use Innmind\Filesystem\Adapter;
 use Innmind\Math\Polynom\Polynom;
 
@@ -19,6 +22,9 @@ final class Log implements Factor
     private LogSensor $sensor;
     private string $name;
 
+    /**
+     * @param callable(LogLine): bool $watch
+     */
     public function __construct(
         Clock $clock,
         Reader $reader,

@@ -12,7 +12,7 @@ use Innmind\Homeostasis\{
 use Innmind\Math\{
     DefinitionSet\Set,
     Statistics\Mean,
-    Algebra\Number\Number
+    Algebra\Number,
 };
 use Innmind\Immutable\{
     Map,
@@ -48,19 +48,19 @@ final class SetTooShort implements StrategyDeterminator
             throw new StrategyNotDeterminable;
         }
 
-        $mean = new Number(0.5);
+        $mean = new Number\Number(0.5);
 
         if ($states->size() > 0) {
-            $mean = new Mean(
-                ...$states->reduce(
-                    [],
-                    static function(array $values, State $state): array {
-                        $states[] = $state->value();
+            /** @var list<Number> */
+            $states = $states->reduce(
+                [],
+                static function(array $states, State $state): array {
+                    $states[] = $state->value();
 
-                        return $states;
-                    }
-                ),
+                    return $states;
+                }
             );
+            $mean = new Mean(...$states);
         }
 
         return $this

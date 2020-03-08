@@ -22,13 +22,15 @@ use function Innmind\Immutable\unwrap;
 final class State
 {
     private PointInTime $time;
+    /** @var Map<string, Measure> */
     private Map $measures;
     private Number $value;
 
-    public function __construct(
-        PointInTime $time,
-        Map $measures
-    ) {
+    /**
+     * @param Map<string, Measure> $measures
+     */
+    public function __construct(PointInTime $time, Map $measures)
+    {
         if (
             (string) $measures->keyType() !== 'string' ||
             (string) $measures->valueType() !== Measure::class

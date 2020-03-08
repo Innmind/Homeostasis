@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\Homeostasis;
 
+use Innmind\Homeostasis\Exception\LogicException;
 use Innmind\TimeContinuum\PointInTime;
 use Innmind\Math\Algebra\Integer;
 
@@ -52,6 +53,9 @@ final class Action
 
             case Strategy::dramaticIncrease():
                 return 0;
+
+            default:
+                throw new LogicException((string) $this->strategy);
         }
     }
 }

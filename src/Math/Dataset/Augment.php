@@ -44,6 +44,7 @@ final class Augment
         do {
             $x = $x->add($delta);
             $estimation = $polynom($x);
+            /** @var list<array{0: int|float, 1: int|float}> */
             $dataset = $dataset->toArray();
             $dataset[] = [$x, $estimation];
             $dataset = Dataset::of($dataset);

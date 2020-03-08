@@ -82,12 +82,17 @@ final class ModulateStateHistory implements Regulator
 
     private function modulate(): void
     {
+        /** @var Sequence<Pair<Integer, Action>> */
+        $variationPerAction = Sequence::of(Pair::class);
         $variations = $this
             ->actions
             ->all()
             ->reduce(
-                Sequence::of(Pair::class),
+                $variationPerAction,
                 static function(Sequence $variations, Action $action): Sequence {
+                    /** @var Sequence<Pair<Integer, Action>> */
+                    $variations = $variations;
+
                     if ($variations->size() === 0) {
                         return $variations->add(new Pair(new Integer(0), $action));
                     }
@@ -98,14 +103,11 @@ final class ModulateStateHistory implements Regulator
                     ));
                 }
             )
-            ->reduce(
-                Sequence::of(Integer::class),
-                static function(Sequence $variations, Pair $action): Sequence {
-                    return $variations->add(
-                        $action->key()
-                    );
-                }
+            ->mapTo(
+                Integer::class,
+                static fn(Pair $action): Integer => $action->key(),
             );
+
         $frequence = new Frequence(...unwrap($variations));
 
         if ($frequence(new Integer(0))->higherThan($this->threshold)) {

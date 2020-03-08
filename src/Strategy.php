@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Innmind\Homeostasis;
 
+use Innmind\Homeostasis\Exception\LogicException;
+
 final class Strategy
 {
     private const DRAMATIC_DECREASE = 'dramaticDecrease';
@@ -57,6 +59,29 @@ final class Strategy
         return self::$dramaticIncrease ?? self::$dramaticIncrease = new self(
             self::DRAMATIC_INCREASE
         );
+    }
+
+    public static function of(string $strategy): self
+    {
+        switch ($strategy) {
+            case self::DRAMATIC_DECREASE:
+                return self::dramaticDecrease();
+
+            case self::DECREASE:
+                return self::decrease();
+
+            case self::HOLD_STEADY:
+                return self::holdSteady();
+
+            case self::INCREASE:
+                return self::increase();
+
+            case self::DRAMATIC_INCREASE:
+                return self::dramaticIncrease();
+
+            default:
+                throw new LogicException($strategy);
+        }
     }
 
     public function __toString(): string

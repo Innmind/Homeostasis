@@ -33,7 +33,7 @@ final class Weight
 
     public function __toString(): string
     {
-        return (string) $this->value;
+        return $this->value->toString();
     }
 
     public static function definitionSet(): Set

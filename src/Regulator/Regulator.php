@@ -21,12 +21,16 @@ use Innmind\Immutable\{
 
 final class Regulator implements RegulatorInterface
 {
+    /** @var Set<Factor> */
     private Set $factors;
     private StateHistory $history;
     private Clock $clock;
     private StrategyDeterminator $strategyDeterminator;
     private Actuator $actuator;
 
+    /**
+     * @param Set<Factor> $factors
+     */
     public function __construct(
         Set $factors,
         StateHistory $history,
@@ -64,17 +68,15 @@ final class Regulator implements RegulatorInterface
 
     private function createState(): State
     {
-        return new State(
-            $this->clock->now(),
-            $this->factors->reduce(
-                Map::of('string', Measure::class),
-                static function(Map $measures, Factor $factor): Map {
-                    return ($measures)(
-                        $factor->name(),
-                        $factor->sensor()()
-                    );
-                }
-            )
+        /** @var Map<string, Measure> */
+        $measures = $this->factors->toMapOf(
+            'string',
+            Measure::class,
+            static function(Factor $factor): \Generator {
+                yield $factor->name() => $factor->sensor()();
+            },
         );
+
+        return new State($this->clock->now(), $measures);
     }
 }
