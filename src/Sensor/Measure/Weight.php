@@ -8,7 +8,7 @@ use Innmind\Math\{
     Algebra\Number,
     Algebra\Integer,
     DefinitionSet\Set,
-    DefinitionSet\Range
+    DefinitionSet\Range,
 };
 
 final class Weight
@@ -38,9 +38,9 @@ final class Weight
 
     public static function definitionSet(): Set
     {
-        return self::$definitionSet ?? self::$definitionSet = Range::inclusive(
+        return self::$definitionSet ??= Range::inclusive(
             new Integer(0),
-            new Integer(1)
+            new Integer(1),
         );
     }
 }

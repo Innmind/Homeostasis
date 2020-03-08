@@ -6,7 +6,7 @@ namespace Innmind\Homeostasis\Actuator\StrategyDeterminator;
 use Innmind\Homeostasis\{
     Actuator\StrategyDeterminator,
     Exception\StrategyNotDeterminable,
-    Strategy
+    Strategy,
 };
 use Innmind\Immutable\Sequence;
 
@@ -20,9 +20,6 @@ final class Delegate implements StrategyDeterminator
         $this->determinators = $determinators;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(Sequence $states): Strategy
     {
         foreach ($this->determinators as $determinate) {

@@ -7,7 +7,7 @@ use Innmind\Homeostasis\{
     Factor,
     Sensor,
     Sensor\Log as LogSensor,
-    Sensor\Measure\Weight
+    Sensor\Measure\Weight,
 };
 use Innmind\TimeContinuum\Clock;
 use Innmind\LogReader\{
@@ -40,7 +40,7 @@ final class Log implements Factor
             $directory,
             $weight,
             $health,
-            $watch
+            $watch,
         );
         $this->name = 'log_'.$name;
     }

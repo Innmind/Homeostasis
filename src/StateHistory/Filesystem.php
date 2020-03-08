@@ -8,7 +8,7 @@ use Innmind\Homeostasis\{
     State,
     Sensor\Measure,
     Sensor\Measure\Weight,
-    TimeContinuum\Format\ISO8601WithMilliseconds
+    TimeContinuum\Format\ISO8601WithMilliseconds,
 };
 use Innmind\Filesystem\{
     Adapter,
@@ -23,7 +23,7 @@ use Innmind\Math\Algebra\Number\Number;
 use Innmind\Immutable\{
     Sequence,
     Set,
-    Map
+    Map,
 };
 
 final class Filesystem implements StateHistory
@@ -31,10 +31,8 @@ final class Filesystem implements StateHistory
     private Adapter $filesystem;
     private Clock $clock;
 
-    public function __construct(
-        Adapter $filesystem,
-        Clock $clock
-    ) {
+    public function __construct(Adapter $filesystem, Clock $clock)
+    {
         $this->filesystem = $filesystem;
         $this->clock = $clock;
     }
@@ -44,14 +42,11 @@ final class Filesystem implements StateHistory
         $this->filesystem->add(
             File\File::named(
                 $this->name($state->time()),
-                Stream::ofContent(json_encode($this->normalize($state)))
-            )
+                Stream::ofContent(json_encode($this->normalize($state))),
+            ),
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function all(): Sequence
     {
         return $this
@@ -66,9 +61,6 @@ final class Filesystem implements StateHistory
             });
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function keepUp(PointInTime $time): void
     {
         $this
@@ -93,7 +85,7 @@ final class Filesystem implements StateHistory
                     $measures[$factor] = $this->normalizeMeasure($measure);
 
                     return $measures;
-                }
+                },
             ),
         ];
     }
@@ -105,13 +97,13 @@ final class Filesystem implements StateHistory
 
         return new State(
             $this->clock->at($data['time']),
-            $this->denormalizeMeasures($data['measures'])
+            $this->denormalizeMeasures($data['measures']),
         );
     }
 
     private function name(PointInTime $time): string
     {
-        return md5($time->format(new ISO8601WithMilliseconds));
+        return \md5($time->format(new ISO8601WithMilliseconds));
     }
 
     /**
@@ -142,8 +134,8 @@ final class Filesystem implements StateHistory
                 new Measure(
                     $this->clock->at($measure['time']),
                     new Number($measure['value']),
-                    new Weight(new Number($measure['weight']))
-                )
+                    new Weight(new Number($measure['weight'])),
+                ),
             );
         }
 

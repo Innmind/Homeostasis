@@ -5,22 +5,22 @@ namespace Innmind\Homeostasis\Sensor;
 
 use Innmind\Homeostasis\{
     Sensor,
-    Sensor\Measure\Weight
+    Sensor\Measure\Weight,
 };
 use Innmind\TimeContinuum\Clock;
 use Innmind\LogReader\{
     Reader,
-    Log as LogLine
+    Log as LogLine,
 };
 use Innmind\Filesystem\{
     Adapter,
     File,
-    Directory
+    Directory,
 };
 use Innmind\Math\{
     Polynom\Polynom,
     Algebra\Number\Number,
-    Algebra\Integer
+    Algebra\Integer,
 };
 use Innmind\Immutable\Sequence;
 
@@ -68,12 +68,12 @@ final class Log implements Sensor
                     return $logs->append(
                         ($this->read)($file->content())
                     );
-                }
+                },
             );
         $errors = $logs->filter(function(LogLine $log): bool {
             return ($this->watch)($log);
         });
-        $percentage = $logs->size() === 0 ? 0 : $errors->size() / $logs->size();
+        $percentage = $logs->empty() ? 0 : $errors->size() / $logs->size();
         $health = ($this->health)(new Number($percentage));
 
         if ($health->higherThan(new Integer(1))) {
@@ -87,7 +87,7 @@ final class Log implements Sensor
         return new Measure(
             $this->clock->now(),
             $health,
-            $this->weight
+            $this->weight,
         );
     }
 }

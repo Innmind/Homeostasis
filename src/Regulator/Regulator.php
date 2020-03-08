@@ -11,13 +11,14 @@ use Innmind\Homeostasis\{
     State,
     Sensor\Measure,
     Actuator,
-    Actuator\StrategyDeterminator
+    Actuator\StrategyDeterminator,
 };
 use Innmind\TimeContinuum\Clock;
 use Innmind\Immutable\{
     Set,
-    Map
+    Map,
 };
+use function Innmind\Immutable\assertSet;
 
 final class Regulator implements RegulatorInterface
 {
@@ -38,12 +39,7 @@ final class Regulator implements RegulatorInterface
         StrategyDeterminator $strategyDeterminator,
         Actuator $actuator
     ) {
-        if ((string) $factors->type() !== Factor::class) {
-            throw new \TypeError(sprintf(
-                'Argument 1 must be of type Set<%s>',
-                Factor::class
-            ));
-        }
+        assertSet(Factor::class, $factors, 1);
 
         $this->factors = $factors;
         $this->history = $history;

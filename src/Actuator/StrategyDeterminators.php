@@ -10,13 +10,13 @@ use Innmind\Homeostasis\{
     Actuator\StrategyDeterminator\WaterLane,
     Actuator\StrategyDeterminator\CrossLane,
     Actuator\StrategyDeterminator\HoldSteadyOnError,
-    Math\Dataset\Augment
+    Math\Dataset\Augment,
 };
 use Innmind\Math\{
     DefinitionSet\Range,
     DefinitionSet\Set,
     Algebra\Number\Number,
-    Algebra\Integer
+    Algebra\Integer,
 };
 use Innmind\Immutable\Map;
 
@@ -46,39 +46,39 @@ final class StrategyDeterminators
                     ($high, Strategy::decrease())
                     ($mid, Strategy::holdSteady())
                     ($low, Strategy::increase())
-                    ($veryLow, Strategy::dramaticIncrease())
+                    ($veryLow, Strategy::dramaticIncrease()),
             ),
             new WaterLane(
                 $veryHigh,
                 $predict,
                 Strategy::dramaticDecrease(),
-                Strategy::decrease()
+                Strategy::decrease(),
             ),
             new WaterLane(
                 $high,
                 $predict,
                 Strategy::decrease(),
-                Strategy::holdSteady()
+                Strategy::holdSteady(),
             ),
             new WaterLane(
                 $mid,
                 $predict,
                 Strategy::holdSteady(),
-                Strategy::holdSteady()
+                Strategy::holdSteady(),
             ),
             new WaterLane(
                 $low,
                 $predict,
                 Strategy::increase(),
-                Strategy::holdSteady()
+                Strategy::holdSteady(),
             ),
             new WaterLane(
                 $veryLow,
                 $predict,
                 Strategy::increase(),
-                Strategy::dramaticIncrease()
+                Strategy::dramaticIncrease(),
             ),
-            new CrossLane($predict)
+            new CrossLane($predict),
         );
 
         return self::$default = new HoldSteadyOnError($delegate);

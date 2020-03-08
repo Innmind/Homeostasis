@@ -28,37 +28,27 @@ final class Strategy
 
     public static function dramaticDecrease(): self
     {
-        return self::$dramaticDecrease ?? self::$dramaticDecrease = new self(
-            self::DRAMATIC_DECREASE
-        );
+        return self::$dramaticDecrease ??= new self(self::DRAMATIC_DECREASE);
     }
 
     public static function decrease(): self
     {
-        return self::$decrease ?? self::$decrease = new self(
-            self::DECREASE
-        );
+        return self::$decrease ??= new self(self::DECREASE);
     }
 
     public static function holdSteady(): self
     {
-        return self::$holdSteady ?? self::$holdSteady = new self(
-            self::HOLD_STEADY
-        );
+        return self::$holdSteady ??= new self(self::HOLD_STEADY);
     }
 
     public static function increase(): self
     {
-        return self::$increase ?? self::$increase = new self(
-            self::INCREASE
-        );
+        return self::$increase ??= new self(self::INCREASE);
     }
 
     public static function dramaticIncrease(): self
     {
-        return self::$dramaticIncrease ?? self::$dramaticIncrease = new self(
-            self::DRAMATIC_INCREASE
-        );
+        return self::$dramaticIncrease ??= new self(self::DRAMATIC_INCREASE);
     }
 
     public static function of(string $strategy): self

@@ -7,7 +7,7 @@ use Innmind\Homeostasis\{
     Factor,
     Sensor,
     Sensor\Cpu as CpuSensor,
-    Sensor\Measure\Weight
+    Sensor\Measure\Weight,
 };
 use Innmind\TimeContinuum\Clock;
 use Innmind\Server\Status\Server;

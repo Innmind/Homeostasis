@@ -5,14 +5,14 @@ namespace Innmind\Homeostasis\Sensor;
 
 use Innmind\Homeostasis\{
     Sensor\Measure\Weight,
-    Exception\OutOfRangeMeasure
+    Exception\OutOfRangeMeasure,
 };
 use Innmind\TimeContinuum\PointInTime;
 use Innmind\Math\{
     Algebra\Number,
     Algebra\Integer,
     DefinitionSet\Set,
-    DefinitionSet\Range
+    DefinitionSet\Range,
 };
 
 final class Measure
@@ -59,9 +59,9 @@ final class Measure
 
     public static function definitionSet(): Set
     {
-        return self::$definitionSet ?? self::$definitionSet = Range::inclusive(
+        return self::$definitionSet ??= Range::inclusive(
             new Integer(0),
-            new Integer(1)
+            new Integer(1),
         );
     }
 }

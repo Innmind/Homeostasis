@@ -9,7 +9,7 @@ use Innmind\Math\{
     Regression\PolynomialRegression,
     Algebra\Integer,
     Polynom\Polynom,
-    Exception\Exception
+    Exception\Exception,
 };
 
 final class BestFit

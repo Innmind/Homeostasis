@@ -34,11 +34,11 @@ function bootstrap(
             $factors,
             $stateHistory = new StateHistory\Filesystem(
                 $stateFilesystem,
-                $clock
+                $clock,
             ),
             $clock,
             $determinator,
-            $actuator
+            $actuator,
         ),
         'modulate_state_history' => static function(Adapter $filesystem, ElapsedPeriod $max = null, ElapsedPeriod $min = null) use ($clock, $stateHistory): callable {
             $max ??= new Earth\ElapsedPeriod(86400000); // one day
@@ -49,12 +49,12 @@ function bootstrap(
                     $regulator,
                     new ActionHistory\Filesystem(
                         $filesystem,
-                        $clock
+                        $clock,
                     ),
                     $stateHistory,
                     $clock,
                     $max,
-                    $min
+                    $min,
                 );
             };
         },

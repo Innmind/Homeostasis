@@ -8,7 +8,7 @@ use Innmind\Homeostasis\{
     ActionHistory,
     StateHistory,
     Strategy,
-    Action
+    Action,
 };
 use Innmind\TimeContinuum\{
     Clock,
@@ -19,11 +19,11 @@ use Innmind\TimeContinuum\{
 use Innmind\Math\{
     Algebra\Number\Number,
     Algebra\Integer,
-    Statistics\Frequence
+    Statistics\Frequence,
 };
 use Innmind\Immutable\{
     Sequence,
-    Pair
+    Pair,
 };
 use function Innmind\Immutable\unwrap;
 
@@ -65,15 +65,15 @@ final class ModulateStateHistory implements Regulator
         $strategy = ($this->regulate)();
         $this->actions->add(new Action(
             $this->clock->now(),
-            $strategy
+            $strategy,
         ));
 
         $this->keepUp(
             $this->clock->now()->goBack(
                 new Millisecond(
-                    $this->maxHistory->milliseconds()
-                )
-            )
+                    $this->maxHistory->milliseconds(),
+                ),
+            ),
         );
         $this->modulate();
 
@@ -93,15 +93,15 @@ final class ModulateStateHistory implements Regulator
                     /** @var Sequence<Pair<Integer, Action>> */
                     $variations = $variations;
 
-                    if ($variations->size() === 0) {
-                        return $variations->add(new Pair(new Integer(0), $action));
+                    if ($variations->empty()) {
+                        return ($variations)(new Pair(new Integer(0), $action));
                     }
 
-                    return $variations->add(new Pair(
+                    return ($variations)(new Pair(
                         $action->variation($variations->last()->value()),
-                        $action
+                        $action,
                     ));
-                }
+                },
             )
             ->mapTo(
                 Integer::class,
@@ -114,9 +114,9 @@ final class ModulateStateHistory implements Regulator
             $this->keepUp(
                 $this->clock->now()->goBack(
                     new Millisecond(
-                        $this->minHistory->milliseconds()
-                    )
-                )
+                        $this->minHistory->milliseconds(),
+                    ),
+                ),
             );
         }
     }

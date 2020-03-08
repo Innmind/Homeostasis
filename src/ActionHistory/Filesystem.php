@@ -7,7 +7,7 @@ use Innmind\Homeostasis\{
     ActionHistory,
     Action,
     Strategy,
-    TimeContinuum\Format\ISO8601WithMilliseconds
+    TimeContinuum\Format\ISO8601WithMilliseconds,
 };
 use Innmind\Filesystem\{
     Adapter,
@@ -18,21 +18,15 @@ use Innmind\TimeContinuum\{
     Clock,
     PointInTime,
 };
-use Innmind\Immutable\{
-    Sequence,
-    Set,
-    Map
-};
+use Innmind\Immutable\Sequence;
 
 final class Filesystem implements ActionHistory
 {
     private Adapter $filesystem;
     private Clock $clock;
 
-    public function __construct(
-        Adapter $filesystem,
-        Clock $clock
-    ) {
+    public function __construct(Adapter $filesystem, Clock $clock)
+    {
         $this->filesystem = $filesystem;
         $this->clock = $clock;
     }
@@ -42,14 +36,11 @@ final class Filesystem implements ActionHistory
         $this->filesystem->add(
             File\File::named(
                 $this->name($action->time()),
-                Stream::ofContent(json_encode($this->normalize($action)))
-            )
+                Stream::ofContent(json_encode($this->normalize($action))),
+            ),
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function all(): Sequence
     {
         return $this
@@ -64,9 +55,6 @@ final class Filesystem implements ActionHistory
             });
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function keepUp(PointInTime $time): void
     {
         $this
@@ -105,6 +93,6 @@ final class Filesystem implements ActionHistory
 
     private function name(PointInTime $time): string
     {
-        return md5($time->format(new ISO8601WithMilliseconds));
+        return \md5($time->format(new ISO8601WithMilliseconds));
     }
 }

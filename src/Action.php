@@ -36,7 +36,7 @@ final class Action
     public function variation(self $previous): Integer
     {
         return new Integer(
-            $this->weight() <=> $previous->weight()
+            $this->weight() <=> $previous->weight(),
         );
     }
 

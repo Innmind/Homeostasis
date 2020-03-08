@@ -5,19 +5,22 @@ namespace Innmind\Homeostasis;
 
 use Innmind\Homeostasis\{
     Sensor\Measure,
-    Exception\SumOfWeightsMustBeOne
+    Exception\SumOfWeightsMustBeOne,
 };
 use Innmind\Math\{
     Algebra\Number,
     Algebra\Integer,
-    Statistics\Mean
+    Statistics\Mean,
 };
 use Innmind\TimeContinuum\PointInTime;
 use Innmind\Immutable\{
     Sequence,
     Map,
 };
-use function Innmind\Immutable\unwrap;
+use function Innmind\Immutable\{
+    unwrap,
+    assertMap,
+};
 
 final class State
 {
@@ -31,23 +34,15 @@ final class State
      */
     public function __construct(PointInTime $time, Map $measures)
     {
-        if (
-            (string) $measures->keyType() !== 'string' ||
-            (string) $measures->valueType() !== Measure::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 2 must be of type Map<string, %s>',
-                Measure::class
-            ));
-        }
+        assertMap('string', Measure::class, $measures, 2);
 
         $weight = $measures->reduce(
             new Integer(0),
             static function(Number $weight, string $factor, Measure $measure): Number {
                 return $weight->add(
-                    $measure->weight()->value()
+                    $measure->weight()->value(),
                 );
-            }
+            },
         );
 
         if (!$weight->equals(new Integer(1))) {
@@ -57,13 +52,11 @@ final class State
         $this->time = $time;
         $this->measures = $measures;
         $this->value = new Mean(
-            ...unwrap($measures->reduce(
-                Sequence::of(Number::class),
-                static function(Sequence $weighted, string $factor, Measure $measure): Sequence {
-                    return $weighted->add(
-                        $measure->value()->multiplyBy($measure->weight()->value())
-                    );
-                }
+            ...unwrap($measures->values()->mapTo(
+                Number::class,
+                static fn(Measure $measure): Number => $measure->value()->multiplyBy(
+                    $measure->weight()->value(),
+                ),
             )),
         );
     }

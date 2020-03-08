@@ -36,14 +36,14 @@ final class TimeSensitive
                 }
 
                 return ($points)(new Pair($key, $state));
-            }
+            },
         );
 
         $previous = $points->first()->key();
         $lowestGap = $points
             ->drop(1)
             ->reduce(
-                INF,
+                \INF,
                 static function(float $lowest, Pair $point) use (&$previous): float {
                     /**
                      * @psalm-suppress MixedOperand
@@ -57,7 +57,7 @@ final class TimeSensitive
                     }
 
                     return $lowest;
-                }
+                },
             );
 
         /**
@@ -68,7 +68,7 @@ final class TimeSensitive
             ->map(static function(Pair $point) use ($lowestGap): Pair {
                 return new Pair(
                     $point->key() / $lowestGap,
-                    $point->value()
+                    $point->value(),
                 );
             })
             ->reduce(
@@ -77,7 +77,7 @@ final class TimeSensitive
                     $points[] = [$point->key(), $point->value()->value()];
 
                     return $points;
-                }
+                },
             );
 
         return Dataset::of($points);

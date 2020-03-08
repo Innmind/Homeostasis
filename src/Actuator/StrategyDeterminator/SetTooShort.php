@@ -7,7 +7,7 @@ use Innmind\Homeostasis\{
     Actuator\StrategyDeterminator,
     Strategy,
     State,
-    Exception\StrategyNotDeterminable
+    Exception\StrategyNotDeterminable,
 };
 use Innmind\Math\{
     DefinitionSet\Set,
@@ -18,6 +18,7 @@ use Innmind\Immutable\{
     Map,
     Sequence,
 };
+use function Innmind\Immutable\assertMap;
 
 final class SetTooShort implements StrategyDeterminator
 {
@@ -25,23 +26,11 @@ final class SetTooShort implements StrategyDeterminator
 
     public function __construct(Map $strategies)
     {
-        if (
-            (string) $strategies->keyType() !== Set::class ||
-            (string) $strategies->valueType() !== Strategy::class
-        ) {
-            throw new \TypeError(sprintf(
-                'Argument 1 must be of type Map<%s, %s>',
-                Set::class,
-                Strategy::class
-            ));
-        }
+        assertMap(Set::class, Strategy::class, $strategies, 1);
 
         $this->strategies = $strategies;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(Sequence $states): Strategy
     {
         if ($states->size() > 4) {
@@ -50,7 +39,7 @@ final class SetTooShort implements StrategyDeterminator
 
         $mean = new Number\Number(0.5);
 
-        if ($states->size() > 0) {
+        if (!$states->empty()) {
             /** @var list<Number> */
             $states = $states->reduce(
                 [],

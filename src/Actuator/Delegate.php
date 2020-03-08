@@ -16,9 +16,6 @@ final class Delegate implements Actuator
         $this->actuators = $actuators;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dramaticDecrease(Sequence $states): void
     {
         foreach ($this->actuators as $actuator) {
@@ -26,9 +23,6 @@ final class Delegate implements Actuator
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function decrease(Sequence $states): void
     {
         foreach ($this->actuators as $actuator) {
@@ -36,9 +30,6 @@ final class Delegate implements Actuator
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function holdSteady(Sequence $states): void
     {
         foreach ($this->actuators as $actuator) {
@@ -46,9 +37,6 @@ final class Delegate implements Actuator
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function increase(Sequence $states): void
     {
         foreach ($this->actuators as $actuator) {
@@ -56,9 +44,6 @@ final class Delegate implements Actuator
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dramaticIncrease(Sequence $states): void
     {
         foreach ($this->actuators as $actuator) {

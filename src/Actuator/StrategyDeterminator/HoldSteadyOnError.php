@@ -6,7 +6,7 @@ namespace Innmind\Homeostasis\Actuator\StrategyDeterminator;
 use Innmind\Homeostasis\{
     Actuator\StrategyDeterminator,
     Exception\Exception,
-    Strategy
+    Strategy,
 };
 use Innmind\Immutable\Sequence;
 
@@ -19,9 +19,6 @@ final class HoldSteadyOnError implements StrategyDeterminator
         $this->determinate = $determinator;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(Sequence $states): Strategy
     {
         try {

@@ -8,14 +8,14 @@ use Innmind\Homeostasis\{
     Strategy,
     Math\Dataset\Augment,
     Math\Dataset\TimeSensitive,
-    Exception\StrategyNotDeterminable
+    Exception\StrategyNotDeterminable,
 };
 use Innmind\Math\{
     Algebra\Number,
     Algebra\Integer,
     Regression\LinearRegression,
     Regression\Dataset,
-    DefinitionSet\Range
+    DefinitionSet\Range,
 };
 use Innmind\Immutable\Sequence;
 
@@ -38,13 +38,10 @@ final class WaterLane implements StrategyDeterminator
         $this->decrease = $decrease;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(Sequence $states): Strategy
     {
         $dataset = ($this->augment)(
-            (new TimeSensitive)($states)
+            (new TimeSensitive)($states),
         );
         $trend = new LinearRegression($dataset);
 
@@ -72,7 +69,7 @@ final class WaterLane implements StrategyDeterminator
         $furthest = $trend(
             $dataset
                 ->abscissas()
-                ->get($dataset->abscissas()->dimension()->decrement()->value())
+                ->get($dataset->abscissas()->dimension()->decrement()->value()),
         );
 
         return $this->notInBounds($furthest);

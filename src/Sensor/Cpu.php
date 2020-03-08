@@ -5,14 +5,14 @@ namespace Innmind\Homeostasis\Sensor;
 
 use Innmind\Homeostasis\{
     Sensor,
-    Sensor\Measure\Weight
+    Sensor\Measure\Weight,
 };
 use Innmind\TimeContinuum\Clock;
 use Innmind\Server\Status\Server;
 use Innmind\Math\{
     Polynom\Polynom,
     Algebra\Number\Number,
-    Algebra\Integer
+    Algebra\Integer,
 };
 
 final class Cpu implements Sensor
@@ -52,7 +52,7 @@ final class Cpu implements Sensor
         return new Measure(
             $this->clock->now(),
             $health,
-            $this->weight
+            $this->weight,
         );
     }
 }
