@@ -20,6 +20,7 @@ use Innmind\TimeContinuum\{
     PointInTime,
 };
 use Innmind\Math\Algebra\Number\Number;
+use Innmind\Json\Json;
 use Innmind\Immutable\{
     Sequence,
     Set,
@@ -42,7 +43,7 @@ final class Filesystem implements StateHistory
         $this->filesystem->add(
             File\File::named(
                 $this->name($state->time()),
-                Stream::ofContent(json_encode($this->normalize($state))),
+                Stream::ofContent(Json::encode($this->normalize($state))),
             ),
         );
     }
@@ -93,7 +94,7 @@ final class Filesystem implements StateHistory
     private function denormalize(File $file): State
     {
         /** @var array{time: string, measures: array<string, array{time: string, value: int|float, weight: int|float}>} */
-        $data = json_decode($file->content()->toString(), true);
+        $data = Json::decode($file->content()->toString());
 
         return new State(
             $this->clock->at($data['time']),

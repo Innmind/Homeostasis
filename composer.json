@@ -20,7 +20,8 @@
         "innmind/time-continuum": "~2.2",
         "innmind/filesystem": "~4.0",
         "innmind/server-status": "~2.0",
-        "innmind/log-reader": "~4.0"
+        "innmind/log-reader": "~4.0",
+        "innmind/json": "^1.2"
     },
     "autoload": {
         "psr-4": {

@@ -18,6 +18,7 @@ use Innmind\TimeContinuum\{
     Clock,
     PointInTime,
 };
+use Innmind\Json\Json;
 use Innmind\Immutable\Sequence;
 
 final class Filesystem implements ActionHistory
@@ -36,7 +37,7 @@ final class Filesystem implements ActionHistory
         $this->filesystem->add(
             File\File::named(
                 $this->name($action->time()),
-                Stream::ofContent(json_encode($this->normalize($action))),
+                Stream::ofContent(Json::encode($this->normalize($action))),
             ),
         );
     }
@@ -83,7 +84,7 @@ final class Filesystem implements ActionHistory
     private function denormalize(File $file): Action
     {
         /** @var array{time: string, strategy: string} */
-        $data = json_decode($file->content()->toString(), true);
+        $data = Json::decode($file->content()->toString());
 
         return new Action(
             $this->clock->at($data['time']),
