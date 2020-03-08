@@ -14,7 +14,7 @@ use Innmind\Math\{
 
 final class BestFit
 {
-    private $dataset;
+    private Dataset $dataset;
 
     public function __construct(Dataset $dataset)
     {

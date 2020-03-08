@@ -15,8 +15,8 @@ use Symfony\Component\Lock\{
 
 final class ThreadSafe implements Regulator
 {
-    private $regulate;
-    private $lock;
+    private Regulator $regulate;
+    private Factory $lock;
 
     public function __construct(Regulator $regulator)
     {

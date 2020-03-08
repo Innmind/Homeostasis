@@ -26,8 +26,8 @@ use Innmind\Immutable\{
 
 final class Filesystem implements ActionHistory
 {
-    private $filesystem;
-    private $clock;
+    private Adapter $filesystem;
+    private TimeContinuumInterface $clock;
 
     public function __construct(
         Adapter $filesystem,

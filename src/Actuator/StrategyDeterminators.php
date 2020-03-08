@@ -22,7 +22,7 @@ use Innmind\Immutable\Map;
 
 final class StrategyDeterminators
 {
-    private static $default;
+    private static ?StrategyDeterminator $default = null;
 
     public static function default(): StrategyDeterminator
     {

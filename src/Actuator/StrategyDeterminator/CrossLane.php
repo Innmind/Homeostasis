@@ -19,8 +19,8 @@ use Innmind\Immutable\StreamInterface;
 
 final class CrossLane implements StrategyDeterminator
 {
-    private $bounds;
-    private $augment;
+    private Range $bounds;
+    private Augment $augment;
 
     public function __construct(Augment $augment)
     {

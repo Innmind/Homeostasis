@@ -14,7 +14,7 @@ use Innmind\Math\{
 
 final class Augment
 {
-    private $predict;
+    private Integer $predict;
 
     public function __construct(Integer $predict)
     {

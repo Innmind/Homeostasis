@@ -11,13 +11,13 @@ final class Strategy
     private const INCREASE = 'increase';
     private const DRAMATIC_INCREASE = 'dramaticIncrease';
 
-    private static $dramaticDecrease;
-    private static $decrease;
-    private static $holdSteady;
-    private static $increase;
-    private static $dramaticIncrease;
+    private static ?self $dramaticDecrease = null;
+    private static ?self $decrease = null;
+    private static ?self $holdSteady = null;
+    private static ?self $increase = null;
+    private static ?self $dramaticIncrease = null;
 
-    private $value;
+    private string $value;
 
     private function __construct(string $value)
     {

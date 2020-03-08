@@ -21,7 +21,7 @@ use Innmind\Immutable\{
 
 final class SetTooShort implements StrategyDeterminator
 {
-    private $strategies;
+    private MapInterface $strategies;
 
     public function __construct(MapInterface $strategies)
     {

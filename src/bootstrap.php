@@ -21,7 +21,7 @@ function bootstrap(
     TimeContinuumInterface $clock,
     StrategyDeterminator $determinator = null
 ): array {
-    $determinator = $determinator ?? StrategyDeterminators::default();
+    $determinator ??= StrategyDeterminators::default();
 
     return [
         'regulator' => new Regulator\Regulator(

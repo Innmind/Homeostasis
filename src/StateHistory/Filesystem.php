@@ -28,8 +28,8 @@ use Innmind\Immutable\{
 
 final class Filesystem implements StateHistory
 {
-    private $filesystem;
-    private $clock;
+    private Adapter $filesystem;
+    private TimeContinuumInterface $clock;
 
     public function __construct(
         Adapter $filesystem,

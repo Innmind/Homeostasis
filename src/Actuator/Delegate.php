@@ -8,7 +8,7 @@ use Innmind\Immutable\StreamInterface;
 
 final class Delegate implements Actuator
 {
-    private $actuators;
+    private array $actuators;
 
     public function __construct(Actuator ...$actuators)
     {

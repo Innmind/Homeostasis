@@ -16,8 +16,8 @@ use Innmind\Math\Polynom\Polynom;
 
 final class Log implements Factor
 {
-    private $sensor;
-    private $name;
+    private LogSensor $sensor;
+    private string $name;
 
     public function __construct(
         TimeContinuumInterface $clock,

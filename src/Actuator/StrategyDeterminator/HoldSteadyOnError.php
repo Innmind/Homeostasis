@@ -12,7 +12,7 @@ use Innmind\Immutable\StreamInterface;
 
 final class HoldSteadyOnError implements StrategyDeterminator
 {
-    private $determinate;
+    private StrategyDeterminator $determinate;
 
     public function __construct(StrategyDeterminator $determinator)
     {

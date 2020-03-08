@@ -21,10 +21,10 @@ use Innmind\Immutable\StreamInterface;
 
 final class WaterLane implements StrategyDeterminator
 {
-    private $bounds;
-    private $augment;
-    private $increase;
-    private $decrease;
+    private Range $bounds;
+    private Augment $augment;
+    private Strategy $increase;
+    private Strategy $decrease;
 
     public function __construct(
         Range $bounds,

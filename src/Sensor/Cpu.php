@@ -17,10 +17,10 @@ use Innmind\Math\{
 
 final class Cpu implements Sensor
 {
-    private $clock;
-    private $server;
-    private $weight;
-    private $health;
+    private TimeContinuumInterface $clock;
+    private Server $server;
+    private Weight $weight;
+    private Polynom $health;
 
     public function __construct(
         TimeContinuumInterface $clock,

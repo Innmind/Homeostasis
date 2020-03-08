@@ -20,9 +20,9 @@ use Innmind\Immutable\{
 
 final class State
 {
-    private $time;
-    private $measures;
-    private $value;
+    private PointInTimeInterface $time;
+    private MapInterface $measures;
+    private Number $value;
 
     public function __construct(
         PointInTimeInterface $time,

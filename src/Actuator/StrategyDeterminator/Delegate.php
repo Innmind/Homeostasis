@@ -12,7 +12,7 @@ use Innmind\Immutable\StreamInterface;
 
 final class Delegate implements StrategyDeterminator
 {
-    private $determinators;
+    private array $determinators;
 
     public function __construct(StrategyDeterminator ...$determinators)
     {

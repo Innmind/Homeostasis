@@ -34,13 +34,13 @@ use Innmind\Immutable\{
  */
 final class ModulateStateHistory implements Regulator
 {
-    private $regulate;
-    private $actions;
-    private $states;
-    private $clock;
-    private $maxHistory;
-    private $minHistory;
-    private $threshold;
+    private Regulator $regulate;
+    private ActionHistory $actions;
+    private StateHistory $states;
+    private TimeContinuumInterface $clock;
+    private ElapsedPeriod $maxHistory;
+    private ElapsedPeriod $minHistory;
+    private Number $threshold;
 
     public function __construct(
         Regulator $regulator,

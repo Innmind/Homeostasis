@@ -11,8 +11,8 @@ use Innmind\Math\Algebra\Integer;
  */
 final class Action
 {
-    private $time;
-    private $strategy;
+    private PointInTimeInterface $time;
+    private Strategy $strategy;
 
     public function __construct(
         PointInTimeInterface $time,

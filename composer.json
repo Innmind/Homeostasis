@@ -14,7 +14,7 @@
         "issues": "http://github.com/Innmind/Homeostasis/issues"
     },
     "require": {
-        "php": "~7.2",
+        "php": "~7.4",
         "innmind/immutable": "^2.3",
         "innmind/math": "^4.1",
         "innmind/time-continuum": "^1.0",

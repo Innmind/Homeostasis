@@ -21,11 +21,11 @@ use Innmind\Immutable\{
 
 final class Regulator implements RegulatorInterface
 {
-    private $factors;
-    private $history;
-    private $clock;
-    private $strategyDeterminator;
-    private $actuator;
+    private SetInterface $factors;
+    private StateHistory $history;
+    private TimeContinuumInterface $clock;
+    private StrategyDeterminator $strategyDeterminator;
+    private Actuator $actuator;
 
     public function __construct(
         SetInterface $factors,

@@ -26,12 +26,12 @@ use Innmind\Immutable\Stream;
 
 final class Log implements Sensor
 {
-    private $clock;
-    private $read;
-    private $directory;
-    private $weight;
-    private $health;
-    private $watch;
+    private TimeContinuumInterface $clock;
+    private Reader $read;
+    private Adapter $directory;
+    private Weight $weight;
+    private Polynom $health;
+    private \Closure $watch;
 
     public function __construct(
         TimeContinuumInterface $clock,
@@ -46,7 +46,7 @@ final class Log implements Sensor
         $this->directory = $directory;
         $this->weight = $weight;
         $this->health = $health;
-        $this->watch = $watch;
+        $this->watch = \Closure::fromCallable($watch);
     }
 
     public function __invoke(): Measure

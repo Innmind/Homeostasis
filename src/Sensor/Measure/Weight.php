@@ -13,9 +13,9 @@ use Innmind\Math\{
 
 final class Weight
 {
-    private static $definitionSet;
+    private static ?Set $definitionSet = null;
 
-    private $value;
+    private Number $value;
 
     public function __construct(Number $value)
     {

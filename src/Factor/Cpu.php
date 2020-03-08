@@ -15,7 +15,7 @@ use Innmind\Math\Polynom\Polynom;
 
 final class Cpu implements Factor
 {
-    private $sensor;
+    private CpuSensor $sensor;
 
     public function __construct(
         TimeContinuumInterface $clock,

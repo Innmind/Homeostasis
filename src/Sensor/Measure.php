@@ -17,11 +17,11 @@ use Innmind\Math\{
 
 final class Measure
 {
-    private static $definitionSet;
+    private static ?Set $definitionSet = null;
 
-    private $time;
-    private $value;
-    private $weight;
+    private PointInTimeInterface $time;
+    private Number $value;
+    private Weight $weight;
 
     public function __construct(
         PointInTimeInterface $time,
