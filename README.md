@@ -18,56 +18,57 @@ use Innmind\Homeostasis\{
     Factor,
     Factor\Cpu,
     Factor\Log,
-    Sensor\Measure\Weight
+    Sensor\Measure\Weight,
 };
-use Innmind\Filesystem\Adapter;
-use Innmind\Immutable\Set;
-use Innmind\Server\Status\ServerFactory;
+use Innmind\OperatingSystem\Factory;
+use Innmind\Url\Path;
 use Innmind\Math\{
     Polynom\Polynom,
     Algebra\Integer
-    Algebra\Number\Number
+    Algebra\Number\Number,
 };
+use Innmind\LogReader\{
+    Reader\OnDemand,
+    Log as LogLine,
+};
+use Innmind\Immutable\Set;
 use Psr\Log\LogLevel;
-use Innmind\TimeContinuum\TimeContinuum\Earth;
-use Innmind\Filesystem\Adapter\FilesystemAdapter;
 
-$clock = new Earth;
+$os = Factory::build();
+$clock = $os->clock();
 $homeostasis = bootstrap(
     Set::of(
         Factor::class,
         new Cpu(
             $clock,
-            (new ServerFactory($clock))->make(),
+            $os->status(),
             new Weight(new Number(0.5)),
             (new Polynom)->withDegree(new Integer(1), new Integer(1))
         ),
         new Log(
             $clock,
-            new Synchronous(new Symfony($clock)),
-            new FilesystemAdapter('var/logs'),
+            new OnDemand(new Symfony($clock)),
+            $os->filesystem()->mount(Path::of('var/logs')),
             new Weight(new Number(0.5)),
             (new Polynom)->withDegree(new Integer(1), new Integer(1)),
-            static function(Log $line): bool {
+            static function(LogLine $line): bool {
                 return $line->attributes()->contains('level') &&
                     $line->attributes()->get('level')->value() === LogLevel:CRITICAL;
             },
-            'symfony'
-        )
+            'symfony',
+        ),
     ),
     /*you need to implement the Actuator interface*/,
-    new FilesystemAdapter('some/path/to/store/states'),
-    $clock
+    $os->filesystem()->mount(Path::of('some/path/to/store/states')),
+    $clock,
 );
 
 $modulateStateHistory = $homeostasis['modulate_state_history'](
-    new FilesystemAdapter('some/path/to/store/actions')
+    $os->filesystem()->mount(Path::of('some/path/to/store/actions')),
 );
 
-$regulate = $homeostasis['thread_safe'](
-    $modulateStateHistory(
-        $homeostasis['regulator']
-    )
+$regulate = $modulateStateHistory(
+    $homeostasis['regulator'],
 );
 
 $regulate();
