@@ -78,7 +78,7 @@ class RegulatorTest extends TestCase
         $history
             ->expects($this->once())
             ->method('add')
-            ->with($this->callback(function(State $state) use (&$built, $now, $measure): bool {
+            ->with($this->callback(static function(State $state) use (&$built, $now, $measure): bool {
                 $built = $state;
 
                 return $state->time() === $now &&
@@ -88,13 +88,13 @@ class RegulatorTest extends TestCase
         $history
             ->expects($this->once())
             ->method('all')
-            ->will($this->returnCallback(function() use (&$built) {
+            ->will($this->returnCallback(static function() use (&$built) {
                 return Sequence::of(State::class, $built);
             }));
         $determinator
             ->expects($this->once())
             ->method('__invoke')
-            ->with($this->callback(function(Sequence $stream) use (&$built) {
+            ->with($this->callback(static function(Sequence $stream) use (&$built) {
                 return $stream->size() === 1 &&
                     $stream->first() === $built;
             }))
@@ -102,7 +102,7 @@ class RegulatorTest extends TestCase
         $actuator
             ->expects($this->once())
             ->method('increase')
-            ->with($this->callback(function(Sequence $stream) use (&$built) {
+            ->with($this->callback(static function(Sequence $stream) use (&$built) {
                 return $stream->size() === 1 &&
                     $stream->first() === $built;
             }));

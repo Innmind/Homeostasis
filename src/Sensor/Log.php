@@ -22,7 +22,6 @@ use Innmind\Math\{
     Algebra\Number\Number,
     Algebra\Integer,
 };
-use Innmind\Immutable\Sequence;
 
 final class Log implements Sensor
 {

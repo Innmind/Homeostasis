@@ -20,7 +20,6 @@ use Innmind\TimeContinuum\{
     Clock,
     Earth\Clock as Earth,
 };
-use Innmind\Math\Algebra\Number\Number;
 use Innmind\Immutable\{
     Set,
     Sequence,
@@ -56,9 +55,9 @@ class FilesystemTest extends TestCase
         $filesystem
             ->expects($this->once())
             ->method('add')
-            ->with($this->callback(function(File $file) use ($now): bool {
-                return $file->name()->toString() === md5($now) &&
-                    $file->content()->toString() === json_encode([
+            ->with($this->callback(static function(File $file) use ($now): bool {
+                return $file->name()->toString() === \md5($now) &&
+                    $file->content()->toString() === \json_encode([
                         'time' => $now,
                         'strategy' => 'holdSteady',
                     ]);
@@ -74,7 +73,7 @@ class FilesystemTest extends TestCase
             $clock = new Earth
         );
         $now = $clock->now()->format(new ISO8601WithMilliseconds);
-        usleep(100);
+        \usleep(100);
         $now2 = $clock->now()->format(new ISO8601WithMilliseconds);
         $filesystem
             ->expects($this->once())
@@ -83,15 +82,15 @@ class FilesystemTest extends TestCase
                 Set::of(
                     File::class,
                     File\File::named(
-                        md5('foo'),
-                        Stream::ofContent(json_encode([
+                        \md5('foo'),
+                        Stream::ofContent(\json_encode([
                             'time' => $now,
                             'strategy' => 'holdSteady',
                         ]))
                     ),
                     File\File::named(
-                        md5('bar'),
-                        Stream::ofContent(json_encode([
+                        \md5('bar'),
+                        Stream::ofContent(\json_encode([
                             'time' => $now2,
                             'strategy' => 'increase',
                         ]))
@@ -125,9 +124,9 @@ class FilesystemTest extends TestCase
             $clock = new Earth
         );
         $now = $clock->now()->format(new ISO8601WithMilliseconds);
-        sleep(1);
+        \sleep(1);
         $mark = $clock->now();
-        sleep(1);
+        \sleep(1);
         $now2 = $clock->now()->format(new ISO8601WithMilliseconds);
         $filesystem
             ->expects($this->once())
@@ -136,15 +135,15 @@ class FilesystemTest extends TestCase
                 Set::of(
                     File::class,
                     File\File::named(
-                        md5('foo'),
-                        Stream::ofContent(json_encode([
+                        \md5('foo'),
+                        Stream::ofContent(\json_encode([
                             'time' => $now,
                             'strategy' => 'increase',
                         ]))
                     ),
                     File\File::named(
-                        md5('bar'),
-                        Stream::ofContent(json_encode([
+                        \md5('bar'),
+                        Stream::ofContent(\json_encode([
                             'time' => $now2,
                             'strategy' => 'decrease',
                         ]))
@@ -154,7 +153,7 @@ class FilesystemTest extends TestCase
         $filesystem
             ->expects($this->once())
             ->method('remove')
-            ->with(new Name(md5('foo')));
+            ->with(new Name(\md5('foo')));
 
         $this->assertNull($history->keepUp($mark));
     }

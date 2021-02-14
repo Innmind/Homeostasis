@@ -30,7 +30,7 @@ class LogTest extends TestCase
                 $this->createMock(Adapter::class),
                 new Weight(new Number(0.5)),
                 new Polynom,
-                function(){},
+                static function() {},
                 'foo'
             )
         );
