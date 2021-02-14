@@ -22,8 +22,12 @@ use function Innmind\Immutable\assertMap;
 
 final class SetTooShort implements StrategyDeterminator
 {
+    /** @var Map<Set, Strategy> */
     private Map $strategies;
 
+    /**
+     * @param Map<Set, Strategy> $strategies
+     */
     public function __construct(Map $strategies)
     {
         assertMap(Set::class, Strategy::class, $strategies, 1);

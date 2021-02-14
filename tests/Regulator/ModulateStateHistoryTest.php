@@ -56,29 +56,37 @@ class ModulateStateHistoryTest extends TestCase
             ->method('__invoke')
             ->willReturn(Strategy::decrease());
         $actions
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('add')
             ->with($this->callback(static function(Action $action) use ($now): bool {
                 return $action->time() === $now &&
                     $action->strategy() === Strategy::decrease();
             }));
         $now
-            ->expects($this->at(0))
+            ->expects($this->exactly(2))
             ->method('goBack')
-            ->with($this->callback(static function(Millisecond $interval): bool {
-                return $interval->milliseconds() === 200;
-            }))
-            ->willReturn($max = $this->createMock(PointInTime::class));
+            ->withConsecutive(
+                [$this->callback(static function(Millisecond $interval): bool {
+                    return $interval->milliseconds() === 200;
+                })],
+                [$this->callback(static function(Millisecond $interval): bool {
+                    return $interval->milliseconds() === 20;
+                })],
+            )
+            ->will($this->onConsecutiveCalls(
+                $max = $this->createMock(PointInTime::class),
+                $min = $this->createMock(PointInTime::class),
+            ));
         $actions
-            ->expects($this->at(1))
+            ->expects($this->exactly(2))
             ->method('keepUp')
             ->with($max);
         $states
-            ->expects($this->at(0))
+            ->expects($this->exactly(2))
             ->method('keepUp')
             ->with($max);
         $actions
-            ->expects($this->at(2))
+            ->expects($this->once())
             ->method('all')
             ->willReturn(
                 Sequence::of(
@@ -105,27 +113,6 @@ class ModulateStateHistoryTest extends TestCase
                     ),
                 ),
             );
-        $now
-            ->expects($this->at(1))
-            ->method('goBack')
-            ->with($this->callback(static function(Millisecond $interval): bool {
-                return $interval->milliseconds() === 20;
-            }))
-            ->willReturn($min = $this->createMock(PointInTime::class));
-        $actions
-            ->expects($this->at(3))
-            ->method('keepUp')
-            ->with($max);
-        $actions
-            ->expects($this->exactly(2))
-            ->method('keepUp');
-        $states
-            ->expects($this->at(1))
-            ->method('keepUp')
-            ->with($max);
-        $states
-            ->expects($this->exactly(2))
-            ->method('keepUp');
 
         $this->assertSame(Strategy::decrease(), $regulate());
     }
@@ -149,7 +136,7 @@ class ModulateStateHistoryTest extends TestCase
             ->method('__invoke')
             ->willReturn(Strategy::decrease());
         $actions
-            ->expects($this->at(0))
+            ->expects($this->once())
             ->method('add')
             ->with($this->callback(static function(Action $action) use ($now): bool {
                 return $action->time() === $now &&
@@ -163,21 +150,15 @@ class ModulateStateHistoryTest extends TestCase
             }))
             ->willReturn($max = $this->createMock(PointInTime::class));
         $actions
-            ->expects($this->at(1))
-            ->method('keepUp')
-            ->with($max);
-        $actions
             ->expects($this->once())
-            ->method('keepUp');
-        $states
-            ->expects($this->at(0))
             ->method('keepUp')
             ->with($max);
         $states
             ->expects($this->once())
-            ->method('keepUp');
+            ->method('keepUp')
+            ->with($max);
         $actions
-            ->expects($this->at(2))
+            ->expects($this->once())
             ->method('all')
             ->willReturn(
                 Sequence::of(

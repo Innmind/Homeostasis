@@ -44,7 +44,7 @@ class LogTest extends TestCase
                 $this->createMock(Adapter::class),
                 new Weight(new Number(0.5)),
                 new Polynom,
-                function(){}
+                static function() {}
             )
         );
     }
@@ -60,9 +60,9 @@ class LogTest extends TestCase
                 new Integer(1),
                 new Number(0.5)
             ),
-            function(LogLine $log): bool {
+            static function(LogLine $log): bool {
                 return $log->attributes()->contains('level') &&
-                    in_array($log->attributes()->get('level')->value(), ['emergency', 'critical'], true);
+                    \in_array($log->attributes()->get('level')->value(), ['emergency', 'critical'], true);
             }
         );
         $clock
@@ -89,9 +89,9 @@ class LogTest extends TestCase
                 new Integer(1),
                 new Number(0.5)
             ),
-            function(LogLine $log): bool {
+            static function(LogLine $log): bool {
                 return $log->attributes()->contains('level') &&
-                    in_array($log->attributes()->get('level')->value(), ['emergency', 'critical'], true);
+                    \in_array($log->attributes()->get('level')->value(), ['emergency', 'critical'], true);
             }
         );
         $clock
@@ -118,9 +118,9 @@ class LogTest extends TestCase
                 new Integer(1),
                 new Number(0)
             ),
-            function(LogLine $log): bool {
+            static function(LogLine $log): bool {
                 return $log->attributes()->contains('level') &&
-                    in_array($log->attributes()->get('level')->value(), ['emergency', 'critical'], true);
+                    \in_array($log->attributes()->get('level')->value(), ['emergency', 'critical'], true);
             }
         );
         $clock
@@ -144,9 +144,9 @@ class LogTest extends TestCase
                 new Integer(1),
                 new Number(0)
             ),
-            function(LogLine $log): bool {
+            static function(LogLine $log): bool {
                 return $log->attributes()->contains('level') &&
-                    in_array($log->attributes()->get('level')->value(), ['emergency', 'critical'], true);
+                    \in_array($log->attributes()->get('level')->value(), ['emergency', 'critical'], true);
             }
         );
         $clock
