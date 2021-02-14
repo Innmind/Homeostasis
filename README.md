@@ -1,6 +1,6 @@
 # Homeostasis
 
-[![Build Status](https://github.com/Innmind/Homeostasis/workflows/CI/badge.svg)](https://github.com/Innmind/Homeostasis/actions?query=workflow%3ACI)
+[![Build Status](https://github.com/Innmind/Homeostasis/workflows/CI/badge.svg?branch=master)](https://github.com/Innmind/Homeostasis/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/Innmind/Homeostasis/branch/develop/graph/badge.svg)](https://codecov.io/gh/Innmind/Homeostasis)
 [![Type Coverage](https://shepherd.dev/github/Innmind/Homeostasis/coverage.svg)](https://shepherd.dev/github/Innmind/Homeostasis)
 
